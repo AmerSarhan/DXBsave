@@ -226,7 +226,7 @@ Rules:
 - Always call a tool before answering. Never respond without data.
 - Present deals clearly: bold venue name, location, offer, price.
 - Keep answers concise — list the deals, add a one-line suggestion if relevant.
-- If the user asks in Arabic, respond in Arabic.
+- ALWAYS respond in English, regardless of what language the user writes in.
 - Never invent deals. Only share what the tools return.`;
 
 export async function POST(request: NextRequest) {

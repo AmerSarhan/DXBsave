@@ -5,6 +5,13 @@ import { useDeals } from '@/contexts/deals-context';
 import { DealCard } from './deal-card';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 
+const FEED_LOADING = [
+  'Scanning deals across 7 emirates...',
+  'Pulling the freshest offers for you...',
+  'Checking what Dubai has cooking...',
+  'Loading 286+ verified deals...',
+];
+
 export function DealFeed() {
   const { filteredDeals, loading, error, retry, isStale, filters, clearFilters } = useDeals();
 
@@ -12,7 +19,7 @@ export function DealFeed() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex justify-center mb-6">
-          <Shimmer className="text-sm" duration={1.5} spread={2}>Loading deals across the UAE</Shimmer>
+          <Shimmer className="text-sm" duration={1.5} spread={2}>{FEED_LOADING[Math.floor(Math.random() * FEED_LOADING.length)]}</Shimmer>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {Array.from({ length: 9 }).map((_, i) => (

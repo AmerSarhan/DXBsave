@@ -33,6 +33,21 @@ const SUGGESTIONS = [
   'Eid specials',
 ];
 
+const LOADING_TEXTS = [
+  'Checking every brunch in JBR...',
+  'Asking the concierge at Atlantis...',
+  'Negotiating with Sheikh Zayed Road traffic...',
+  'Scanning happy hours at Dubai Marina...',
+  'Racing through Mall of the Emirates...',
+  'Checking if Aquaventure is still free...',
+  'Counting dirhams so you don\'t have to...',
+  'Haggling at the Gold Souk...',
+  'Dodging supercar traffic on JBR walk...',
+  'Refreshing the Entertainer app...',
+  'Calling every hotel on Palm Jumeirah...',
+  'Checking Talabat for promo codes...',
+];
+
 function MiniDealCard({ deal, onTap }: { deal: DealResult; onTap: () => void }) {
   const config = CATEGORIES.find(c => c.key === deal.category);
   const isFree = deal.price.toLowerCase().includes('free');
@@ -78,6 +93,7 @@ export function AskWidget() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loadingText, setLoadingText] = useState('');
   const [openDeal, setOpenDeal] = useState<AnyDeal | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -111,6 +127,7 @@ export function AskWidget() {
 
     setInput('');
     setError('');
+    setLoadingText(LOADING_TEXTS[Math.floor(Math.random() * LOADING_TEXTS.length)]);
     setMessages(prev => [...prev, { role: 'user', content: msg }]);
     setLoading(true);
 
@@ -225,7 +242,7 @@ export function AskWidget() {
 
             {loading && (
               <div className="space-y-1.5 px-1">
-                <Shimmer className="text-[12px]" duration={1.5} spread={2}>Searching deals across the UAE</Shimmer>
+                <Shimmer className="text-[12px]" duration={1.5} spread={2}>{loadingText}</Shimmer>
                 <div className="space-y-1">
                   {[1, 2, 3].map(i => (
                     <div key={i} className="p-2.5 rounded-lg bg-white shadow-sm shadow-stone-100 flex items-center gap-2.5">
