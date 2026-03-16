@@ -138,15 +138,15 @@ export function DealFeed() {
           return (
             <div key={section.key}>
               {/* Section header */}
-              <div className="flex items-center gap-3 mt-6 mb-3 first:mt-0">
+              <div className="flex items-center gap-4 mt-8 mb-4 first:mt-2">
                 {catImage && (
-                  <div className="w-10 h-10 shrink-0">
-                    <Image src={catImage} alt={config?.label || ''} width={40} height={40} className="object-contain" />
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-white shadow-sm shadow-stone-200/40 p-1.5">
+                    <Image src={catImage} alt={config?.label || ''} width={56} height={56} className="object-contain w-full h-full" />
                   </div>
                 )}
                 <div className="flex-1">
-                  <h2 className="text-[16px] font-bold text-stone-800">{config?.label}</h2>
-                  <p className="text-[11px] text-stone-400">{section.deals.length} deals</p>
+                  <h2 className="text-[18px] font-bold text-stone-900">{config?.label}</h2>
+                  <p className="text-[12px] text-stone-400">{section.deals.length} deals available</p>
                 </div>
               </div>
 
