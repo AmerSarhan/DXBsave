@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useMemo, useCallback, useReducer } from 'react';
 import { useSheetData } from '@/hooks/use-sheet-data';
 import { useFavorites } from '@/hooks/use-favorites';
+import { useTrending } from '@/hooks/use-trending';
 import {
   AnyDeal,
   SheetData,
@@ -74,6 +75,11 @@ interface DealsContextValue {
   getDealBySlug: (slug: string) => AnyDeal | undefined;
   getRelatedDeals: (deal: AnyDeal) => AnyDeal[];
   getCategoryCount: (category: CategoryKey) => number;
+
+  // Trending
+  recordTap: (dealId: string) => void;
+  getTaps: (dealId: string) => number;
+  isTrending: (dealId: string) => boolean;
 }
 
 const DealsContext = createContext<DealsContextValue | null>(null);
@@ -81,6 +87,7 @@ const DealsContext = createContext<DealsContextValue | null>(null);
 export function DealsProvider({ children }: { children: React.ReactNode }) {
   const { data, loading, error, isStale, refresh, retry } = useSheetData();
   const { toggleFavorite, isFavorite, favorites } = useFavorites();
+  const { recordTap, getTaps, isTrending } = useTrending();
 
   const [state, dispatch] = useReducer(reducer, {
     filters: { emirate: 'All', category: 'all', search: '', sort: 'default' },
@@ -182,6 +189,9 @@ export function DealsProvider({ children }: { children: React.ReactNode }) {
     getDealBySlug,
     getRelatedDeals,
     getCategoryCount,
+    recordTap,
+    getTaps,
+    isTrending,
   };
 
   return <DealsContext.Provider value={value}>{children}</DealsContext.Provider>;

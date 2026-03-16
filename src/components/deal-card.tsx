@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Heart, Share2, MapPin, Copy, Check, Flame } from 'lucide-react';
+import { Heart, Share2, MapPin, Copy, Check, Flame, TrendingUp, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDeals } from '@/contexts/deals-context';
 import { CATEGORIES } from '@/lib/constants';
@@ -92,7 +92,7 @@ interface DealCardProps {
 }
 
 export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
-  const { toggleFavorite, isFavorite } = useDeals();
+  const { toggleFavorite, isFavorite, recordTap, getTaps, isTrending: checkTrending } = useDeals();
   const [detailOpen, setDetailOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -100,6 +100,8 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
   const config = CATEGORIES.find(c => c.key === deal.category);
   const isDelivery = deal.category === 'delivery';
   const promoCode = isDelivery ? (deal as DeliveryDeal).promoCode : '';
+  const taps = getTaps(deal.id);
+  const trending = checkTrending(deal.id);
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -122,6 +124,7 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
   };
 
   const handleOpenDetail = () => {
+    recordTap(deal.id);
     if (onDetailOpen) onDetailOpen();
     setDetailOpen(true);
   };
@@ -160,6 +163,7 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
           {/* Left accent strip */}
           <div className={cn('w-14 shrink-0 flex flex-col items-center justify-center gap-1.5 py-4', config?.bgColor)}>
             {config && <config.icon className={cn('w-5 h-5', config.color)} />}
+            {trending && <TrendingUp className="w-3 h-3 text-amber-500" />}
             {deal.isExpiringSoon && <Flame className="w-3.5 h-3.5 text-red-400" />}
             {'isNew' in deal && deal.isNew && (
               <span className="text-[8px] font-bold text-blue-600">NEW</span>
@@ -202,8 +206,14 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
                 )}
               </div>
 
-              {/* Quick actions */}
+              {/* Quick actions + tap count */}
               <div className="flex items-center gap-0.5">
+                {taps > 0 && (
+                  <span className="text-[10px] text-stone-400 flex items-center gap-0.5 mr-1">
+                    <Eye className="w-2.5 h-2.5" />
+                    {taps}
+                  </span>
+                )}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
