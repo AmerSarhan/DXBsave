@@ -1,59 +1,81 @@
 # DXBSave
 
-A mobile-first web app for discovering the latest deals and offers across the UAE. Hotels, dining, attractions, delivery codes, spa, shopping, and Eid specials — all in one place, updated live from a curated Google Sheet.
+Mobile-first deals platform for the UAE. Browse 286+ verified offers across hotels, dining, attractions, delivery, spa, shopping, and Eid specials. Data pulls live from a Google Sheet, no backend needed.
 
-**Live:** [dxbsave.com](https://dxbsave.com)
+**[dxbsave.com](https://dxbsave.com)**
 
 ## How It Works
 
-The app fetches data live from a published Google Sheet via CSV export. A Next.js API route proxies the requests server-side to avoid CORS, parses the CSV with PapaParse, and returns typed JSON. The client fetches all 7 category sheets in parallel on load.
-
-The sheet maintainer updates deals in Google Sheets. The app reflects changes within 5 minutes (server-side cache TTL). No redeployment needed.
-
 ```
-Google Sheets (CSV) → Next.js API Route → PapaParse → React Context → UI
+Google Sheets (CSV) -> Next.js API Route -> PapaParse -> React Context -> UI
 ```
 
-## Categories
+Someone updates the Google Sheet. The app picks it up within 5 minutes. No redeploy, no database, no CMS.
 
-| Category | Sheet | Deals |
-|----------|-------|-------|
-| Hotels & Staycations | Day passes, overnight deals | 96 |
-| F&B Dining & Drinks | Happy hours, ladies nights, brunches, iftars | 73 |
-| Attractions & Events | Theme parks, concerts, free entry offers | 28 |
-| Delivery & App Deals | Promo codes for Deliveroo, Talabat, Careem | 24 |
-| Spa, Wellness & Fitness | BOGO deals, hotel spas | 24 |
-| Shopping & Retail | Eid sales, seasonal events | 10 |
-| Eid Specials | Cross-category Eid deals | 31 |
+The API route fetches CSV server-side (avoids CORS), parses it, and returns typed JSON. All 7 category sheets load in parallel on first visit.
 
 ## Features
 
-- **Live data** from Google Sheets — no database, no CMS
-- **Search** across all fields (venue, offer, location, inclusions)
-- **Filter** by emirate (Dubai, Abu Dhabi, Sharjah, etc.) and category
-- **Sort** by price or expiring soon
-- **Favorites** saved in localStorage — no account needed
-- **Share** via WhatsApp or native share sheet, with deep links to individual deals
-- **Promo code copy** — one tap for delivery app codes
-- **Expiring soon** badges on deals within 7 days of expiry
-- **Dirham currency symbol** with smart price formatting (handles FREE, ranges, "from" prices)
-- **AI deal assistant** — ask questions about deals, powered by OpenRouter (server-side only, key never in client)
-- **Responsive** — single column on mobile, 3-column grid on desktop
-- **Slide-out deal panel** — full deal details in a right-side panel (desktop) or full-screen (mobile)
+**Browse**
+- 7 deal categories with live counts
+- Filter by emirate (Dubai, Abu Dhabi, Sharjah, RAK, Ajman, Fujairah, UAQ)
+- Sort by price or expiring soon
+- Paginated feed (24 at a time, no scroll jank)
+- Trending badges powered by Upstash Redis
+
+**Search**
+- Full-text search across all fields (venue, offer, location)
+- Quick search chips (Pool, Brunch, Happy Hour, Eid, etc.)
+- Trending deals shown on empty search
+- Results grouped by category with tappable cards
+
+**Deal Details**
+- Slide-up panel on mobile, right panel on desktop
+- Smart price display with Dirham symbol (handles FREE, ranges, "from" prices)
+- Book Now / Call to Book actions
+- WhatsApp share with pre-formatted message
+- Related deals from same category + emirate
+
+**AI Deal Finder**
+- Natural language search ("hotels under 300", "free things in Dubai")
+- Gemini 3 Flash via OpenRouter with tool calling
+- 5 tools: search, category, emirate, free deals, cheapest
+- Returns tappable deal cards, not text walls
+- Contextual loading messages ("Haggling at the Gold Souk...")
+- Full-screen on mobile, floating panel on desktop
+
+**Favorites**
+- Tap heart to save, stored in localStorage
+- No account needed, works offline
+- Dedicated /favorites page
+
+**Trending**
+- Every deal tap records to Upstash Redis
+- Top 20 most-tapped deals get trending badge
+- View count shown per deal
+- HyperLogLog for daily unique visitors per deal
+
+**SEO**
+- Server-rendered /deals page with all deal data (Google can crawl it)
+- sitemap.xml and robots.txt
+- Full OG metadata with custom share image
+- Twitter card support
+- Google Analytics 4
 
 ## Tech Stack
 
-| Layer | Tech |
-|-------|------|
+| | |
+|---|---|
 | Framework | Next.js 16 (App Router) |
-| UI | shadcn/ui + Tailwind CSS v4 |
+| Styling | Tailwind CSS v4 + shadcn/ui |
 | Icons | Lucide React |
 | Animation | Framer Motion |
 | CSV Parsing | PapaParse |
-| State | React Context |
-| AI | OpenRouter (Gemini 2.0 Flash) |
+| State | React Context + useReducer |
+| AI | OpenRouter (Gemini 3 Flash, tool calling) |
+| Trending | Upstash Redis (sorted sets + HyperLogLog) |
 | Analytics | Google Analytics 4 |
-| Deployment | Vercel |
+| Hosting | Vercel |
 
 ## Project Structure
 
@@ -61,37 +83,47 @@ Google Sheets (CSV) → Next.js API Route → PapaParse → React Context → UI
 src/
   app/
     api/
-      sheets/[gid]/route.ts     # Server-side CSV proxy with rate limiting
-      ask/route.ts               # AI assistant endpoint (server-side only)
-    deal/[slug]/page.tsx         # Deep link deal page
-    favorites/page.tsx           # Saved deals
-    layout.tsx                   # Root layout, metadata, GA, SEO
-    page.tsx                     # Homepage
+      sheets/[gid]/route.ts     Server-side CSV proxy, rate limited
+      ask/route.ts               AI assistant with tool calling
+      trending/route.ts          Redis tap tracking + trending
+    deals/page.tsx               Server-rendered SEO page
+    deal/[slug]/page.tsx         Deep link to specific deal
+    favorites/page.tsx           Saved deals
+    sitemap.ts                   Dynamic sitemap
+    robots.ts                    Crawler rules
+    layout.tsx                   Root layout, metadata, GA
+    page.tsx                     Homepage
+
   components/
-    top-bar.tsx                  # Sticky nav with search + favorites
-    hero.tsx                     # Headline + rotating spotlight cards
-    category-bar.tsx             # Horizontal category pills
-    filter-bar.tsx               # Emirate filters + sort
-    deal-card.tsx                # Horizontal deal card with icon strip
-    deal-feed.tsx                # Responsive deal grid
-    deal-detail.tsx              # Slide-out detail panel
-    search-overlay.tsx           # Full-screen search
-    ask-widget.tsx               # AI deal assistant chat widget
-    back-to-top.tsx              # Scroll-to-top button
-    dirham-icon.tsx              # UAE Dirham currency symbol
+    top-bar.tsx                  Sticky nav, animated logo, search + favorites
+    hero.tsx                     Headline, rotating spotlight cards, credits
+    category-bar.tsx             Categories + emirates + sort (single sticky row)
+    deal-card.tsx                Horizontal card with icon strip, price display
+    deal-feed.tsx                Paginated grid with shimmer loading
+    deal-detail.tsx              Slide-up (mobile) / right panel (desktop)
+    search-overlay.tsx           Full-screen search with trending + quick chips
+    ask-widget.tsx               AI chat with deal cards, suggestions, follow-ups
+    back-to-top.tsx              Scroll button (bottom-left)
+    dirham-icon.tsx              UAE Dirham currency symbol (SVG)
+
   hooks/
-    use-sheet-data.ts            # Fetch + parse all CSV sheets
-    use-favorites.ts             # localStorage favorites
+    use-sheet-data.ts            Parallel CSV fetch, 5min cache, localStorage fallback
+    use-favorites.ts             localStorage read/write
+    use-trending.ts              Redis tap tracking, optimistic UI
+
   contexts/
-    deals-context.tsx            # Global state, filters, search
+    deals-context.tsx            Global state, filters, search, sort, favorites, trending
+
   lib/
-    types.ts                     # TypeScript interfaces per category
-    constants.ts                 # GID map, category config, emirate list
-    sheets.ts                    # CSV parsers per category
-    utils.ts                     # Date parsing, slug generation, hashing
+    types.ts                     TypeScript interfaces for all 7 categories
+    constants.ts                 Sheet GIDs, category config, emirate list
+    sheets.ts                    CSV parsers (one per category)
+    utils.ts                     Hashing, slugs, date parsing, price helpers
+    redis.ts                     Upstash Redis client (graceful if missing)
+    analytics.ts                 GA4 event helpers
 ```
 
-## Running Locally
+## Setup
 
 ```bash
 npm install
@@ -102,26 +134,34 @@ Open [localhost:3000](http://localhost:3000).
 
 ## Environment Variables
 
-| Variable | Purpose | Required |
-|----------|---------|----------|
-| `NEXT_PUBLIC_SITE_URL` | Base URL for OG meta and deep links | No (defaults to `https://dxbsave.com`) |
-| `OPENROUTER_API_KEY` | AI assistant (server-side only, never in client) | No (assistant disabled if missing) |
+All optional. The app works without any of them (AI and trending just get disabled).
+
+| Variable | What it does | Where it runs |
+|---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | OG meta base URL | Client |
+| `OPENROUTER_API_KEY` | AI deal finder | Server only |
+| `UPSTASH_REDIS_REST_URL` | Trending + tap counts | Server only |
+| `UPSTASH_REDIS_REST_TOKEN` | Redis auth | Server only |
+
+None of the server-side keys use `NEXT_PUBLIC_` prefix. They never appear in the client bundle.
 
 ## Security
 
-- API keys are server-side only — no `NEXT_PUBLIC_` prefix, never in the client bundle
-- Both API routes (`/api/sheets`, `/api/ask`) are rate limited per IP
-- Google Sheets URL is only in the server-side API route
-- `bookVia` URLs are validated (must be `https://` or phone number format)
-- All user input is sanitized and length-capped
+- All API keys are server-side only, never in git, never in client JS
+- `/api/sheets` rate limited at 30 req/min per IP
+- `/api/ask` rate limited at 10 req/min per IP
+- `bookVia` URLs validated as https:// or phone number format
+- AI input capped at 500 chars, output at 600 tokens
+- Google Sheets URL only exists in the server-side route file
 
-## Data Source
+## Swapping the Data Source
 
-The Google Sheet has 7 data tabs plus a summary dashboard and market tips. Each tab has its own column schema. The app skips the first 3 rows of each sheet (title, sources disclaimer, headers) and parses from row 4 onward.
+1. Publish your Google Sheet to the web (File > Share > Publish to web > CSV)
+2. Update `SHEET_BASE_URL` in `src/app/api/sheets/[gid]/route.ts`
+3. Update `SHEET_GIDS` in `src/lib/constants.ts` with your sheet's GID values
+4. Update the parser functions in `src/lib/sheets.ts` if your columns differ
 
-Sheet GID mapping is in `src/lib/constants.ts`. Parsers are in `src/lib/sheets.ts`.
-
-To use a different Google Sheet: update the `SHEET_BASE_URL` in the API route and `SHEET_GIDS` in constants, then update the parser functions to match your column layout.
+The app skips the first 3 rows of each sheet (title, disclaimer, headers) and parses from row 4.
 
 ## Credits
 
