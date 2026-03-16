@@ -106,16 +106,14 @@ export function DealDetail({ deal, open, onClose, onChangeDeal }: DealDetailProp
             className="fixed inset-0 z-[70] bg-black/40"
           />
 
-          <motion.div
-            initial={{ transform: 'translateY(100%)' }}
-            animate={{ transform: 'translateY(0%)' }}
-            exit={{ transform: 'translateY(100%)' }}
-            transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+          <div
             ref={panelRef}
             className={cn(
-              'fixed z-[70] bg-white overflow-y-auto overscroll-contain',
+              'fixed z-[70] bg-white overflow-y-auto overscroll-contain shadow-2xl animate-panel-in',
+              // Mobile: bottom sheet
               'inset-x-0 bottom-0 top-3 rounded-t-[20px]',
-              'md:inset-y-0 md:top-0 md:left-auto md:right-0 md:w-[480px] md:rounded-none'
+              // Desktop: centered modal
+              'md:inset-auto md:top-1/2 md:left-1/2 md:w-[560px] md:max-h-[85vh] md:rounded-2xl'
             )}
           >
             <div className={cn('transition-opacity duration-150', swapping ? 'opacity-0' : 'opacity-100')}>
@@ -301,7 +299,7 @@ export function DealDetail({ deal, open, onClose, onChangeDeal }: DealDetailProp
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>

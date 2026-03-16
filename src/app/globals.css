@@ -197,6 +197,24 @@
   }
 }
 
+/* Deal panel — slides up on mobile, scales in centered on desktop */
+@keyframes panel-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes panel-scale-in {
+  from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+.animate-panel-in {
+  animation: panel-slide-up 0.35s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@media (min-width: 768px) {
+  .animate-panel-in {
+    animation: panel-scale-in 0.25s cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+}
+
 /* Smooth fade-in for spotlight card rotation */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }
