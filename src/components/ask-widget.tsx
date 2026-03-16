@@ -117,13 +117,19 @@ export function AskWidget() {
               <div
                 key={i}
                 className={cn(
-                  'max-w-[85%] text-[13px] leading-relaxed px-3 py-2 rounded-xl',
+                  'max-w-[90%] text-[13px] leading-relaxed px-3 py-2.5 rounded-xl',
                   m.role === 'user'
                     ? 'ml-auto bg-stone-900 text-white rounded-br-sm'
-                    : 'bg-stone-100 text-stone-700 rounded-bl-sm'
+                    : 'bg-stone-100 text-stone-700 rounded-bl-sm whitespace-pre-line'
                 )}
               >
-                {m.content}
+                {m.role === 'assistant'
+                  ? m.content.split(/(\*\*[^*]+\*\*)/).map((part, j) =>
+                      part.startsWith('**') && part.endsWith('**')
+                        ? <strong key={j} className="font-semibold text-stone-900">{part.slice(2, -2)}</strong>
+                        : part
+                    )
+                  : m.content}
               </div>
             ))}
 
