@@ -2,7 +2,7 @@
 
 import { Heart, Share2, ExternalLink, Phone, Copy, Check, X, MapPin, Clock, Flame, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn, generateWhatsAppUrl } from '@/lib/utils';
 import { useDeals } from '@/contexts/deals-context';
 import { CATEGORIES } from '@/lib/constants';
@@ -72,6 +72,14 @@ export function DealDetail({ deal, open, onClose }: DealDetailProps) {
 
   if (deal.notes) details.push({ label: 'Notes', value: deal.notes });
 
+  // Lock body scroll when open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [open]);
+
   return (
     <AnimatePresence>
       {open && (
@@ -86,18 +94,18 @@ export function DealDetail({ deal, open, onClose }: DealDetailProps) {
             className="fixed inset-0 z-[70] bg-black/30"
           />
 
-          {/* Panel — slides from right on desktop, bottom on mobile */}
+          {/* Panel — slides up on mobile, right on desktop */}
           <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 0.35 }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 0.3 }}
             className={cn(
-              'fixed z-[70] bg-stone-50 overflow-y-auto shadow-2xl',
-              // Mobile: full screen
-              'inset-0',
+              'fixed z-[70] bg-stone-50 overflow-y-auto overscroll-contain shadow-2xl',
+              // Mobile: bottom sheet, almost full screen
+              'inset-x-0 bottom-0 top-4 rounded-t-2xl',
               // Desktop: right panel
-              'md:inset-y-0 md:left-auto md:right-0 md:w-[480px]'
+              'md:inset-y-0 md:top-0 md:left-auto md:right-0 md:w-[480px] md:rounded-none'
             )}
           >
             {/* Top bar */}

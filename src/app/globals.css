@@ -168,6 +168,8 @@
   }
   html {
     @apply font-sans scroll-smooth;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 }
 

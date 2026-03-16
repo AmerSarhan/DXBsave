@@ -1,9 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { SearchX } from 'lucide-react';
 import { useDeals } from '@/contexts/deals-context';
 import { DealCard } from './deal-card';
 import { Shimmer } from '@/components/ai-elements/shimmer';
+
+const PAGE_SIZE = 24;
 
 const FEED_LOADING = [
   'Scanning deals across 7 emirates...',
@@ -72,6 +75,14 @@ export function DealFeed() {
     );
   }
 
+  const [visible, setVisible] = useState(PAGE_SIZE);
+
+  // Reset pagination when filters change
+  useEffect(() => { setVisible(PAGE_SIZE); }, [filters]);
+
+  const visibleDeals = filteredDeals.slice(0, visible);
+  const hasMore = visible < filteredDeals.length;
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-4">
       {isStale && (
@@ -85,10 +96,21 @@ export function DealFeed() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {filteredDeals.map((deal) => (
+        {visibleDeals.map((deal) => (
           <DealCard key={deal.id} deal={deal} />
         ))}
       </div>
+
+      {hasMore && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={() => setVisible(v => v + PAGE_SIZE)}
+            className="px-6 py-2.5 bg-white text-stone-600 rounded-xl text-sm font-medium shadow-sm shadow-stone-200/60 hover:bg-stone-100 active:scale-[0.97] transition-all touch-manipulation"
+          >
+            Show more deals ({filteredDeals.length - visible} remaining)
+          </button>
+        </div>
+      )}
 
       {/* Credits */}
       <div className="mt-12 mb-8 text-center">
