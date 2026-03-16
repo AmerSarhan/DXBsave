@@ -33,7 +33,7 @@ function SearchResultCard({ deal, onTap }: { deal: AnyDeal; onTap: () => void })
   return (
     <button
       onClick={onTap}
-      className="w-full text-left flex items-center gap-3 p-3 rounded-xl active:bg-stone-100 active:scale-[0.98] transition-all duration-150 touch-manipulation"
+      className="w-full text-left flex items-center gap-3 p-3 rounded-xl active:bg-stone-100 active:scale-[0.97] transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] touch-manipulation"
     >
       <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center shrink-0', config?.bgColor || 'bg-stone-100')}>
         {config && <config.icon className={cn('w-4 h-4', config.color)} />}

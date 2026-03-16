@@ -34,16 +34,25 @@ export function TopBar() {
           <Link href="/" className="flex items-center gap-2 group">
             <motion.div
               className="relative"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.92 }}
+              whileTap={{ transform: 'scale(0.92)' }}
               animate={{
-                rotate: [0, 0, -12, 14, -6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                scale: [1, 1, 1.1, 0.95, 1.05, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                transform: [
+                  'scale(1) rotate(0deg)',
+                  'scale(1) rotate(0deg)',
+                  'scale(1.08) rotate(-10deg)',
+                  'scale(0.96) rotate(12deg)',
+                  'scale(1.03) rotate(-4deg)',
+                  'scale(1) rotate(0deg)',
+                  'scale(1) rotate(0deg)',
+                  'scale(1) rotate(0deg)',
+                  'scale(1) rotate(0deg)',
+                  'scale(1) rotate(0deg)',
+                ],
               }}
               transition={{
                 duration: 8,
                 repeat: Infinity,
-                ease: 'easeInOut',
+                ease: [0.23, 1, 0.32, 1],
               }}
             >
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-stone-700 to-stone-900 flex items-center justify-center shadow-lg shadow-stone-800/25 group-hover:shadow-stone-800/40 transition-shadow ring-1 ring-white/10">
@@ -69,7 +78,7 @@ export function TopBar() {
           <div className="flex items-center gap-0.5">
             <Link
               href="/favorites"
-              className="relative p-2.5 rounded-xl hover:bg-neutral-100/80 transition-all active:scale-95"
+              className="relative p-2.5 rounded-xl hover:bg-neutral-100/80 transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-95"
               aria-label="View favorites"
             >
               <Heart className="w-[18px] h-[18px] text-neutral-500" />
@@ -86,7 +95,7 @@ export function TopBar() {
             </Link>
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2.5 rounded-xl hover:bg-neutral-100/80 transition-all active:scale-95"
+              className="p-2.5 rounded-xl hover:bg-neutral-100/80 transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-95"
               aria-label="Search deals"
             >
               <Search className="w-[18px] h-[18px] text-neutral-500" />

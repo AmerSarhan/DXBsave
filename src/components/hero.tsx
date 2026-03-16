@@ -46,7 +46,7 @@ function SpotlightCard({
     <div className="flex-1 min-w-[150px] sm:min-w-0 snap-start">
       <button
         onClick={() => deal && onOpen?.(deal)}
-        className="w-full text-left p-3 sm:p-3.5 bg-white rounded-xl border border-neutral-100 hover:border-neutral-200 hover:shadow-md active:scale-[0.97] transition-all duration-200 cursor-pointer group"
+        className="w-full text-left p-3 sm:p-3.5 bg-white rounded-xl border border-neutral-100 active:scale-[0.97] transition-[transform,border-color,box-shadow] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer group hover-lift"
       >
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
@@ -167,10 +167,10 @@ export function Hero() {
           <AnimatePresence mode="wait">
             <motion.div
               key={taglineIndex}
-              initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, transform: 'translateY(6px)', filter: 'blur(3px)' }}
+              animate={{ opacity: 1, transform: 'translateY(0px)', filter: 'blur(0px)' }}
+              exit={{ opacity: 0, transform: 'translateY(-6px)', filter: 'blur(3px)' }}
+              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
               className="flex items-center gap-2 text-neutral-400"
             >
               <Tag className="w-3.5 h-3.5" />

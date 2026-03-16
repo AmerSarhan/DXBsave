@@ -132,7 +132,7 @@ function MiniDealCard({ deal, onTap }: { deal: DealResult; onTap: () => void }) 
   return (
     <button
       onClick={onTap}
-      className="w-full text-left p-2.5 rounded-xl bg-white active:bg-stone-50 active:scale-[0.98] transition-all duration-150 flex items-start gap-2.5 touch-manipulation"
+      className="w-full text-left p-2.5 rounded-xl bg-white active:bg-stone-50 active:scale-[0.97] transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] flex items-start gap-2.5 touch-manipulation"
     >
       <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center shrink-0', config?.bgColor || 'bg-stone-100')}>
         {config ? <config.icon className={cn('w-4 h-4', config.color || 'text-stone-500')} /> : <Tag className="w-4 h-4 text-stone-400" />}

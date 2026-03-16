@@ -173,6 +173,30 @@
   }
 }
 
+/* Emil Kowalski easing curves */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Reduced motion: keep opacity, remove movement */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Hover states only on devices that support them */
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,0.1);
+  }
+}
+
 /* Smooth fade-in for spotlight card rotation */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }

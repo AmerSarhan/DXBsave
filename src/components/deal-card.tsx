@@ -94,6 +94,7 @@ interface DealCardProps {
 export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
   const { toggleFavorite, isFavorite, recordTap, getTaps, isTrending: checkTrending } = useDeals();
   const [detailOpen, setDetailOpen] = useState(false);
+  const [activeDeal, setActiveDeal] = useState<AnyDeal>(deal);
   const [copied, setCopied] = useState(false);
 
   const fav = isFavorite(deal.id);
@@ -134,7 +135,7 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
       <>
         <button
           onClick={handleOpenDetail}
-          className="w-full text-left p-3 rounded-xl bg-neutral-50 hover:bg-neutral-100 active:scale-[0.98] transition-all duration-150 flex items-center gap-3"
+          className="w-full text-left p-3 rounded-xl bg-neutral-50 active:bg-neutral-100 active:scale-[0.97] transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] flex items-center gap-3"
         >
           <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center shrink-0', config?.bgColor)}>
             {config && <config.icon className={cn('w-4 h-4', config.color)} />}
@@ -147,7 +148,7 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
             <PriceDisplay price={deal.price} className="text-[13px] font-bold text-neutral-900 whitespace-nowrap" />
           )}
         </button>
-        <DealDetail deal={deal} open={detailOpen} onClose={() => setDetailOpen(false)} />
+        <DealDetail deal={activeDeal} open={detailOpen} onClose={() => { setDetailOpen(false); setActiveDeal(deal); }} onChangeDeal={setActiveDeal} />
       </>
     );
   }
@@ -156,7 +157,7 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
     <>
       <article
         onClick={handleOpenDetail}
-        className="group bg-white rounded-xl shadow-sm shadow-stone-200/60 cursor-pointer active:scale-[0.98] transition-all duration-200 hover:shadow-md hover:shadow-stone-300/40 overflow-hidden"
+        className="group bg-white rounded-xl shadow-sm shadow-stone-200/60 cursor-pointer overflow-hidden transition-[transform,box-shadow] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] hover-lift"
       >
         {/* Horizontal layout: icon strip left, content right */}
         <div className="flex">
@@ -219,14 +220,14 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
                     e.stopPropagation();
                     toggleFavorite(deal.id);
                   }}
-                  className="p-1.5 rounded-lg hover:bg-stone-100 active:scale-90 transition-all"
+                  className="p-1.5 rounded-lg hover:bg-stone-100 active:scale-[0.92] transition-[transform] duration-[100ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
                   aria-label={fav ? 'Remove from favorites' : 'Save to favorites'}
                 >
                   <Heart className={cn('w-[14px] h-[14px] transition-colors', fav ? 'fill-red-500 text-red-500' : 'text-stone-300')} />
                 </button>
                 <button
                   onClick={handleShare}
-                  className="p-1.5 rounded-lg hover:bg-stone-100 active:scale-90 transition-all"
+                  className="p-1.5 rounded-lg hover:bg-stone-100 active:scale-[0.92] transition-[transform] duration-[100ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
                   aria-label="Share deal"
                 >
                   <Share2 className="w-[14px] h-[14px] text-stone-300" />
@@ -250,7 +251,7 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
           </div>
         )}
       </article>
-      <DealDetail deal={deal} open={detailOpen} onClose={() => setDetailOpen(false)} />
+      <DealDetail deal={activeDeal} open={detailOpen} onClose={() => { setDetailOpen(false); setActiveDeal(deal); }} onChangeDeal={setActiveDeal} />
     </>
   );
 }

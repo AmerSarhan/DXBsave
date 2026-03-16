@@ -154,10 +154,16 @@ export function DealsProvider({ children }: { children: React.ReactNode }) {
   );
 
   const getRelatedDeals = useCallback(
-    (deal: AnyDeal) =>
-      allDeals
-        .filter(d => d.id !== deal.id && (d.category === deal.category || d.emirate === deal.emirate))
-        .slice(0, 4),
+    (deal: AnyDeal) => {
+      const others = allDeals.filter(d => d.id !== deal.id);
+      // Best: same category + same emirate
+      const best = others.filter(d => d.category === deal.category && d.emirate === deal.emirate);
+      // Good: same category, different emirate
+      const good = others.filter(d => d.category === deal.category && d.emirate !== deal.emirate);
+      // OK: same emirate, different category
+      const ok = others.filter(d => d.emirate === deal.emirate && d.category !== deal.category);
+      return [...best, ...good, ...ok].slice(0, 6);
+    },
     [allDeals]
   );
 
