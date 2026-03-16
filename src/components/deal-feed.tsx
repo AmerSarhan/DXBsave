@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { SearchX } from 'lucide-react';
 import { useDeals } from '@/contexts/deals-context';
 import { DealCard } from './deal-card';
@@ -17,12 +17,24 @@ const FEED_LOADING = [
 
 export function DealFeed() {
   const { filteredDeals, loading, error, retry, isStale, filters, clearFilters } = useDeals();
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const [loadingText, setLoadingText] = useState(FEED_LOADING[0]);
+
+  useEffect(() => {
+    setLoadingText(FEED_LOADING[Math.floor(Math.random() * FEED_LOADING.length)]);
+  }, []);
+
+  // Reset pagination when filters change
+  useEffect(() => { setVisible(PAGE_SIZE); }, [filters]);
+
+  const visibleDeals = useMemo(() => filteredDeals.slice(0, visible), [filteredDeals, visible]);
+  const hasMore = visible < filteredDeals.length;
 
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex justify-center mb-6">
-          <Shimmer className="text-sm" duration={1.5} spread={2}>{FEED_LOADING[Math.floor(Math.random() * FEED_LOADING.length)]}</Shimmer>
+          <Shimmer className="text-sm" duration={1.5} spread={2}>{loadingText}</Shimmer>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {Array.from({ length: 9 }).map((_, i) => (
@@ -44,12 +56,12 @@ export function DealFeed() {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <SearchX className="w-12 h-12 mx-auto text-neutral-200 mb-4" />
-        <h2 className="text-lg font-semibold text-neutral-800 mb-1">Something went wrong</h2>
-        <p className="text-sm text-neutral-400 mb-6">{error}</p>
+        <SearchX className="w-12 h-12 mx-auto text-stone-200 mb-4" />
+        <h2 className="text-lg font-semibold text-stone-800 mb-1">Something went wrong</h2>
+        <p className="text-sm text-stone-400 mb-6">{error}</p>
         <button
           onClick={retry}
-          className="px-5 py-2 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 active:scale-95 transition-all"
+          className="px-5 py-2 bg-stone-900 text-white rounded-xl text-sm font-medium hover:bg-stone-800 active:scale-95 transition-all"
         >
           Try Again
         </button>
@@ -60,28 +72,20 @@ export function DealFeed() {
   if (filteredDeals.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <SearchX className="w-12 h-12 mx-auto text-neutral-200 mb-4" />
-        <h2 className="text-lg font-semibold text-neutral-800 mb-1">No deals found</h2>
-        <p className="text-sm text-neutral-400 mb-6">
+        <SearchX className="w-12 h-12 mx-auto text-stone-200 mb-4" />
+        <h2 className="text-lg font-semibold text-stone-800 mb-1">No deals found</h2>
+        <p className="text-sm text-stone-400 mb-6">
           {filters.search ? `No results for "${filters.search}"` : 'Try adjusting your filters'}
         </p>
         <button
           onClick={clearFilters}
-          className="px-5 py-2 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 active:scale-95 transition-all"
+          className="px-5 py-2 bg-stone-900 text-white rounded-xl text-sm font-medium hover:bg-stone-800 active:scale-95 transition-all"
         >
           Clear Filters
         </button>
       </div>
     );
   }
-
-  const [visible, setVisible] = useState(PAGE_SIZE);
-
-  // Reset pagination when filters change
-  useEffect(() => { setVisible(PAGE_SIZE); }, [filters]);
-
-  const visibleDeals = filteredDeals.slice(0, visible);
-  const hasMore = visible < filteredDeals.length;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-4">
@@ -91,7 +95,7 @@ export function DealFeed() {
         </div>
       )}
 
-      <p className="text-[12px] text-neutral-400 mb-3">
+      <p className="text-[12px] text-stone-400 mb-3">
         {filteredDeals.length} deal{filteredDeals.length !== 1 ? 's' : ''}
       </p>
 
@@ -112,11 +116,10 @@ export function DealFeed() {
         </div>
       )}
 
-      {/* Credits */}
       <div className="mt-12 mb-8 text-center">
-        <p className="text-[11px] text-neutral-300">
-          Deals compiled by <span className="text-neutral-400 font-medium">Dom</span> from the{' '}
-          <span className="text-neutral-400 font-medium">Adtech Chat MENA</span> WhatsApp Group
+        <p className="text-[11px] text-stone-300">
+          Deals compiled by <span className="text-stone-400 font-medium">Dom</span> from the{' '}
+          <span className="text-stone-400 font-medium">Adtech Chat MENA</span> WhatsApp Group
         </p>
       </div>
     </div>
