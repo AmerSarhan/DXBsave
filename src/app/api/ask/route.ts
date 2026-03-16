@@ -256,7 +256,7 @@ export async function POST(request: NextRequest) {
           'X-Title': 'DXBSave',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash-preview',
+          model: 'google/gemini-3-flash-preview',
           messages,
           tools,
           max_tokens: 600,
@@ -265,7 +265,36 @@ export async function POST(request: NextRequest) {
       });
 
       if (!response.ok) {
-        console.error('OpenRouter error:', response.status);
+        const errBody = await response.text().catch(() => '');
+        console.error('OpenRouter error:', response.status, errBody);
+
+        // If tool calling fails (model doesn't support it), fallback to no-tools request
+        if (response.status === 400 && i === 0) {
+          const fallbackRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+              'HTTP-Referer': 'https://dxbsave.com',
+              'X-Title': 'DXBSave',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-3-flash-preview',
+              messages: [
+                { role: 'system', content: SYSTEM_PROMPT + '\n\nDEAL DATA:\n' + (await getAllDeals()).slice(0, 80).map(formatDeal).join('\n') },
+                { role: 'user', content: message },
+              ],
+              max_tokens: 500,
+              temperature: 0.3,
+            }),
+          });
+          if (fallbackRes.ok) {
+            const fbData = await fallbackRes.json();
+            const fbReply = fbData.choices?.[0]?.message?.content?.trim();
+            if (fbReply) return NextResponse.json({ reply: fbReply });
+          }
+        }
+
         return NextResponse.json({ error: 'AI is temporarily unavailable' }, { status: 502 });
       }
 
@@ -279,7 +308,12 @@ export async function POST(request: NextRequest) {
 
       // If model wants to call tools
       if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
-        messages.push(assistantMsg);
+        // Push assistant message — ensure content is not undefined
+        messages.push({
+          role: 'assistant',
+          content: assistantMsg.content || null,
+          tool_calls: assistantMsg.tool_calls,
+        });
 
         for (const toolCall of assistantMsg.tool_calls) {
           const fnName = toolCall.function.name;
@@ -290,10 +324,11 @@ export async function POST(request: NextRequest) {
           messages.push({
             role: 'tool',
             tool_call_id: toolCall.id,
+            name: fnName,
             content: result,
           });
         }
-        continue; // next iteration — model will now respond with the data
+        continue;
       }
 
       // Model is done — return the final text
