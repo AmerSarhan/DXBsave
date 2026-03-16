@@ -57,9 +57,30 @@ async function fetchDeals(): Promise<Record<string, Deal[]>> {
 
 export default async function DealsPage() {
   const dealsByCategory = await fetchDeals();
+  const allDeals = Object.values(dealsByCategory).flat();
+
+  // Build ItemList JSON-LD for Google
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "UAE Deals & Offers",
+    "description": "Verified deals across the UAE",
+    "numberOfItems": allDeals.length,
+    "itemListElement": allDeals.slice(0, 100).map((deal, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "name": deal.name,
+      "description": deal.offer,
+      ...(deal.price && { "offers": { "@type": "Offer", "price": deal.price.replace(/[^0-9.]/g, '') || '0', "priceCurrency": "AED" } }),
+    })),
+  };
 
   return (
     <main className="max-w-4xl mx-auto px-5 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <Link href="/" className="text-sm text-stone-400 hover:text-stone-600 transition-colors">
         &larr; Back to DXBSave
       </Link>
@@ -68,7 +89,7 @@ export default async function DealsPage() {
         All UAE Deals & Offers
       </h1>
       <p className="text-stone-500 mb-8">
-        {Object.values(dealsByCategory).flat().length}+ verified deals across hotels, dining, attractions, delivery, spa, and Eid specials. Updated daily.
+        {allDeals.length}+ verified deals across hotels, dining, attractions, delivery, spa, and Eid specials. Updated daily.
       </p>
 
       {SHEETS.map((sheet) => {
