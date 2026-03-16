@@ -3,7 +3,7 @@
 import { SearchX } from 'lucide-react';
 import { useDeals } from '@/contexts/deals-context';
 import { DealCard } from './deal-card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Shimmer } from '@/components/ai-elements/shimmer';
 
 export function DealFeed() {
   const { filteredDeals, loading, error, retry, isStale, filters, clearFilters } = useDeals();
@@ -11,16 +11,19 @@ export function DealFeed() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex justify-center mb-6">
+          <Shimmer className="text-sm" duration={1.5} spread={2}>Loading deals across the UAE</Shimmer>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-neutral-100 p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-7 w-7 rounded-lg" />
-                <Skeleton className="h-3 w-16" />
+            <div key={i} className="rounded-xl bg-white shadow-sm shadow-stone-200/60 overflow-hidden flex">
+              <div className="w-14 shrink-0 bg-stone-100 animate-pulse" />
+              <div className="flex-1 p-3.5 space-y-2">
+                <div className="h-3.5 w-3/4 bg-stone-100 rounded animate-pulse" />
+                <div className="h-2.5 w-1/2 bg-stone-50 rounded animate-pulse" />
+                <div className="h-2.5 w-full bg-stone-50 rounded animate-pulse" />
+                <div className="h-5 w-16 bg-stone-100 rounded animate-pulse" />
               </div>
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-6 w-20" />
             </div>
           ))}
         </div>

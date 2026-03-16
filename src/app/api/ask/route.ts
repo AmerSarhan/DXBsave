@@ -143,6 +143,9 @@ const tools = [
 ];
 
 // --- Tool execution ---
+// Collect deals returned by tools so we can send them to the client
+let lastToolDeals: DealRow[] = [];
+
 function formatDeal(d: DealRow): string {
   const parts = [`**${d.name}**`];
   if (d.location || d.emirate) parts.push(`${[d.location, d.emirate].filter(Boolean).join(', ')}`);
@@ -160,34 +163,37 @@ function extractPrice(p: string): number {
 async function executeTool(name: string, args: Record<string, unknown>): Promise<string> {
   const deals = await getAllDeals();
   const max = (args.max_results as number) || 10;
+  let results: DealRow[] = [];
 
   switch (name) {
     case 'search_deals': {
       const q = (args.query as string).toLowerCase();
-      const results = deals.filter(d =>
+      results = deals.filter(d =>
         d.name.toLowerCase().includes(q) ||
         d.offer.toLowerCase().includes(q) ||
         d.location.toLowerCase().includes(q) ||
         d.category.toLowerCase().includes(q)
       ).slice(0, max);
-      return results.length ? results.map(formatDeal).join('\n') : 'No deals found for that search.';
+      break;
     }
     case 'get_deals_by_category': {
       const cat = args.category as string;
-      return deals.filter(d => d.category === cat).slice(0, max).map(formatDeal).join('\n') || 'No deals in that category.';
+      results = deals.filter(d => d.category === cat).slice(0, max);
+      break;
     }
     case 'get_deals_by_emirate': {
       const emirate = (args.emirate as string).toLowerCase();
       const cat = args.category as string | undefined;
       let filtered = deals.filter(d => d.emirate.toLowerCase().includes(emirate));
       if (cat) filtered = filtered.filter(d => d.category === cat);
-      return filtered.slice(0, max).map(formatDeal).join('\n') || 'No deals found in that emirate.';
+      results = filtered.slice(0, max);
+      break;
     }
     case 'get_free_deals': {
-      const free = deals.filter(d =>
+      results = deals.filter(d =>
         d.price.toLowerCase().includes('free') || d.offer.toLowerCase().includes('free')
       ).slice(0, max);
-      return free.length ? free.map(formatDeal).join('\n') : 'No free deals found right now.';
+      break;
     }
     case 'get_cheapest_deals': {
       const cat = args.category as string | undefined;
@@ -198,11 +204,17 @@ async function executeTool(name: string, args: Record<string, unknown>): Promise
       });
       if (cat) filtered = filtered.filter(d => d.category === cat);
       filtered.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
-      return filtered.slice(0, max).map(formatDeal).join('\n') || 'No deals found in that price range.';
+      results = filtered.slice(0, max);
+      break;
     }
-    default:
-      return 'Unknown tool.';
   }
+
+  // Track for client response
+  lastToolDeals.push(...results);
+
+  return results.length
+    ? results.map(formatDeal).join('\n')
+    : 'No deals found matching that criteria.';
 }
 
 // --- Main handler ---
@@ -239,6 +251,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Message must be 1-500 characters' }, { status: 400 });
   }
 
+  lastToolDeals = [];
   const messages: Array<Record<string, unknown>> = [
     { role: 'system', content: SYSTEM_PROMPT },
     { role: 'user', content: message },
@@ -336,7 +349,14 @@ export async function POST(request: NextRequest) {
       if (!reply) {
         return NextResponse.json({ error: 'Empty response' }, { status: 502 });
       }
-      return NextResponse.json({ reply });
+      // Deduplicate deals by name
+      const seen = new Set<string>();
+      const uniqueDeals = lastToolDeals.filter(d => {
+        if (seen.has(d.name)) return false;
+        seen.add(d.name);
+        return true;
+      });
+      return NextResponse.json({ reply, deals: uniqueDeals.slice(0, 8) });
     }
 
     return NextResponse.json({ error: 'Could not complete the request' }, { status: 500 });
