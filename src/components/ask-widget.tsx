@@ -403,7 +403,7 @@ export function AskWidget() {
 
       {/* Deal detail portal */}
       {openDeal && typeof document !== 'undefined' && createPortal(
-        <DealDetail deal={openDeal} open={true} onClose={() => setOpenDeal(null)} />,
+        <DealDetail deal={openDeal} open={true} onClose={() => setOpenDeal(null)} onChangeDeal={setOpenDeal} />,
         document.body
       )}
     </>

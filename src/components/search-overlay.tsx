@@ -246,7 +246,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
 
       {/* Deal detail portal */}
       {selectedDeal && typeof document !== 'undefined' && createPortal(
-        <DealDetail deal={selectedDeal} open={true} onClose={() => setSelectedDeal(null)} />,
+        <DealDetail deal={selectedDeal} open={true} onClose={() => setSelectedDeal(null)} onChangeDeal={setSelectedDeal} />,
         document.body
       )}
     </>

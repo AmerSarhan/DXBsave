@@ -257,7 +257,7 @@ export function Hero() {
 
       {/* Deal detail portal — rendered outside hero DOM to avoid z-index/overflow issues */}
       {openDeal && typeof document !== 'undefined' && createPortal(
-        <DealDetail deal={openDeal} open={true} onClose={() => setOpenDeal(null)} />,
+        <DealDetail deal={openDeal} open={true} onClose={() => setOpenDeal(null)} onChangeDeal={setOpenDeal} />,
         document.body
       )}
     </section>
