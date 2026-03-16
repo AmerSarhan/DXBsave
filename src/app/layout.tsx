@@ -72,7 +72,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   themeColor: "#ffffff",
 };
 
@@ -83,6 +82,39 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "DXBSave",
+              "url": "https://dxbsave.com",
+              "description": "Discover 286+ verified deals across the UAE. Hotels, dining, attractions, delivery codes, spa and Eid specials.",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://dxbsave.com/?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "DXBSave",
+              "url": "https://dxbsave.com",
+              "logo": "https://dxbsave.com/shared-image.jpg",
+              "sameAs": ["https://github.com/AmerSarhan/DXBsave"],
+              "description": "UAE's best deals and offers platform"
+            })
+          }}
+        />
+      </head>
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-P3L6DHYDZT"
         strategy="afterInteractive"
