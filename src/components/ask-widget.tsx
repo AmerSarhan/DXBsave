@@ -43,20 +43,87 @@ const FOLLOW_UPS = [
   'Family-friendly?',
 ];
 
-const LOADING_TEXTS = [
-  'Checking every brunch in JBR...',
-  'Asking the concierge at Atlantis...',
-  'Negotiating with Sheikh Zayed Road traffic...',
-  'Scanning happy hours at Dubai Marina...',
-  'Racing through Mall of the Emirates...',
-  'Checking if Aquaventure is still free...',
-  'Counting dirhams so you don\'t have to...',
-  'Haggling at the Gold Souk...',
+const LOADING_MAP: Record<string, string[]> = {
+  hotel: [
+    'Fluffing pillows at every 5-star...',
+    'Calling the Palm Jumeirah concierge...',
+    'Checking pool day pass availability...',
+    'Comparing staycation deals like a travel agent...',
+  ],
+  dining: [
+    'Reserving the best table in town...',
+    'Tasting every happy hour in Marina...',
+    'Checking if brunch is still bottomless...',
+    'Counting how many iftars we can fit...',
+  ],
+  brunch: [
+    'Checking if brunch is still bottomless...',
+    'Comparing every Friday brunch in Dubai...',
+    'Making sure the champagne is included...',
+  ],
+  free: [
+    'Finding all the freebies in the UAE...',
+    'Checking if Aquaventure is still free...',
+    'Hunting for zero-dirham deals...',
+    'Making sure it is actually free...',
+  ],
+  eid: [
+    'Checking every Eid special across the UAE...',
+    'Scanning Eid brunches, staycations, events...',
+    'Making sure the Eid fireworks are still on...',
+  ],
+  spa: [
+    'Booking you a massage... just kidding...',
+    'Checking every BOGO spa deal...',
+    'Finding the most relaxing offer...',
+  ],
+  cheap: [
+    'Counting dirhams so you don\'t have to...',
+    'Finding deals your wallet will love...',
+    'Haggling at the Gold Souk for you...',
+  ],
+  delivery: [
+    'Checking Talabat for promo codes...',
+    'Refreshing the Deliveroo app...',
+    'Finding codes that actually work...',
+  ],
+  attraction: [
+    'Racing through every theme park...',
+    'Checking if the rides are worth it...',
+    'Finding the best things to do this week...',
+  ],
+  abu: [
+    'Driving to Abu Dhabi real quick...',
+    'Checking what the capital has cooking...',
+    'Scanning Yas Island and Saadiyat deals...',
+  ],
+  sharjah: [
+    'Crossing the border to Sharjah...',
+    'Checking what Sharjah is hiding...',
+  ],
+  rak: [
+    'Road tripping to Ras Al Khaimah...',
+    'Checking mountain and beach deals in RAK...',
+  ],
+};
+
+const LOADING_FALLBACK = [
+  'Scanning deals across the UAE...',
   'Dodging supercar traffic on JBR walk...',
   'Refreshing the Entertainer app...',
-  'Calling every hotel on Palm Jumeirah...',
-  'Checking Talabat for promo codes...',
+  'Racing through Mall of the Emirates...',
+  'Asking around in the souks...',
 ];
+
+function getLoadingText(query: string): string {
+  const q = query.toLowerCase();
+  for (const [keyword, texts] of Object.entries(LOADING_MAP)) {
+    if (q.includes(keyword)) {
+      return texts[Math.floor(Math.random() * texts.length)];
+    }
+  }
+  return LOADING_FALLBACK[Math.floor(Math.random() * LOADING_FALLBACK.length)];
+}
 
 function MiniDealCard({ deal, onTap }: { deal: DealResult; onTap: () => void }) {
   const config = CATEGORIES.find(c => c.key === deal.category);
@@ -138,7 +205,7 @@ export function AskWidget() {
 
     setInput('');
     setError('');
-    setLoadingText(LOADING_TEXTS[Math.floor(Math.random() * LOADING_TEXTS.length)]);
+    setLoadingText(getLoadingText(msg));
     setMessages(prev => [...prev, { role: 'user', content: msg }]);
     setLoading(true);
 
