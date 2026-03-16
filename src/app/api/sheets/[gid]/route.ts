@@ -1,17 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const SHEET_BASE_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTUOCxeVzPNaZosSkzwTPvuxM4in2XKBeBbYBMUbJiRCA6rCY5qeEkD8lWWZFO0PJfZeAIFc3HjRRz7/pub?output=csv&gid=';
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSUm8ZCBVCcdUoub21h_fppYUhhlviwK_g9crhKAk34rT9bJXgwgdGJ81EPaaJ9Uw/pub?output=csv&gid=';
 
 const VALID_GIDS = new Set([
-  '824763207', '136317990', '391522585', '1490714237',
-  '170977339', '1273501838', '767741984', '232251154',
+  '121077454', '1938135534', '595734893', '195924846',
+  '264158510', '2136278522', '1267508469', '748122700',
 ]);
+
+// Simple in-memory rate limiter: 30 requests per minute per IP
+const rateMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 30;
+const RATE_WINDOW = 60_000; // 1 minute
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW });
+    return false;
+  }
+
+  entry.count++;
+  if (entry.count > RATE_LIMIT) return true;
+  return false;
+}
+
+// Cleanup stale entries every 5 minutes
+if (typeof globalThis !== 'undefined') {
+  const cleanup = () => {
+    const now = Date.now();
+    for (const [ip, entry] of rateMap) {
+      if (now > entry.resetAt) rateMap.delete(ip);
+    }
+  };
+  setInterval(cleanup, 5 * 60_000).unref?.();
+}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ gid: string }> }
 ) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown';
+
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': '60' } }
+    );
+  }
+
   const { gid } = await params;
 
   if (!VALID_GIDS.has(gid)) {
@@ -20,7 +61,7 @@ export async function GET(
 
   try {
     const response = await fetch(`${SHEET_BASE_URL}${gid}`, {
-      next: { revalidate: 300 }, // Cache for 5 minutes
+      next: { revalidate: 300 },
     });
 
     if (!response.ok) {

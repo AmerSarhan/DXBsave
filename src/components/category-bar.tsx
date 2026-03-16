@@ -14,11 +14,11 @@ export function CategoryBar() {
   };
 
   return (
-    <div className="sticky top-14 z-40 bg-white/80 backdrop-blur-2xl border-b border-neutral-100/80">
+    <div className="sticky top-14 z-40 bg-stone-50/80 backdrop-blur-2xl border-b border-stone-200/50">
       <div className="relative max-w-7xl mx-auto">
         {/* Fade edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white/90 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/90 to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-stone-50/90 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-stone-50/90 to-transparent z-10 pointer-events-none" />
 
         <div className="px-5 py-2.5 flex gap-2 overflow-x-auto no-scrollbar">
           <motion.button

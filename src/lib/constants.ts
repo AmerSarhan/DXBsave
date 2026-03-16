@@ -10,18 +10,15 @@ import {
 } from 'lucide-react';
 import { CategoryKey } from './types';
 
-export const SHEET_BASE_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTUOCxeVzPNaZosSkzwTPvuxM4in2XKBeBbYBMUbJiRCA6rCY5qeEkD8lWWZFO0PJfZeAIFc3HjRRz7/pub?output=csv&gid=';
-
 export const SHEET_GIDS: Record<CategoryKey | 'tips', string> = {
-  hotels: '824763207',
-  dining: '136317990',
-  attractions: '391522585',
-  delivery: '1490714237',
-  spa: '170977339',
-  shopping: '1273501838',
-  eid: '767741984',
-  tips: '232251154',
+  hotels: '121077454',
+  dining: '1938135534',
+  attractions: '595734893',
+  delivery: '195924846',
+  spa: '264158510',
+  shopping: '2136278522',
+  eid: '1267508469',
+  tips: '748122700',
 };
 
 export interface CategoryConfig {

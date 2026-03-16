@@ -26,7 +26,7 @@ export function TopBar() {
           'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
           'backdrop-blur-2xl border-b',
           scrolled
-            ? 'bg-white/90 border-neutral-200/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
+            ? 'bg-stone-50/90 border-neutral-200/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
             : 'bg-transparent border-transparent'
         )}
       >

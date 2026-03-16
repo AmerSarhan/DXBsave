@@ -1,14 +1,13 @@
 'use client';
 
-import { Heart, Share2, ExternalLink, Phone, Copy, Check, X, MapPin, Clock, Flame } from 'lucide-react';
+import { Heart, Share2, ExternalLink, Phone, Copy, Check, X, MapPin, Clock, Flame, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { cn, generateWhatsAppUrl } from '@/lib/utils';
 import { useDeals } from '@/contexts/deals-context';
 import { CATEGORIES } from '@/lib/constants';
 import { AnyDeal, HotelDeal, DiningDeal, DeliveryDeal, SpaDeal } from '@/lib/types';
-import { DealCard } from './deal-card';
-import { DirhamIcon } from './dirham-icon';
+import { DealCard, PriceDisplay } from './deal-card';
 import { toast } from 'sonner';
 
 interface DealDetailProps {
@@ -43,7 +42,6 @@ export function DealDetail({ deal, open, onClose }: DealDetailProps) {
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
-  // Extract category-specific details
   const details: { label: string; value: string }[] = [];
 
   if (deal.category === 'hotels') {
@@ -83,155 +81,151 @@ export function DealDetail({ deal, open, onClose }: DealDetailProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[70] bg-black/30"
           />
 
-          {/* Content — responsive: bottom sheet on mobile, modal on desktop */}
+          {/* Panel — slides from right on desktop, bottom on mobile */}
           <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 0.35 }}
             className={cn(
-              'fixed z-[70] bg-white overflow-y-auto',
-              // Mobile: bottom sheet
-              'inset-x-0 bottom-0 max-h-[85vh] rounded-t-3xl',
-              // Desktop: centered modal
-              'md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2',
-              'md:max-h-[80vh] md:w-full md:max-w-lg md:rounded-2xl'
+              'fixed z-[70] bg-stone-50 overflow-y-auto shadow-2xl',
+              // Mobile: full screen
+              'inset-0',
+              // Desktop: right panel
+              'md:inset-y-0 md:left-auto md:right-0 md:w-[480px]'
             )}
           >
-            {/* Drag handle (mobile) */}
-            <div className="md:hidden flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 bg-neutral-300 rounded-full" />
-            </div>
-
-            {/* Close button */}
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors z-10"
-              aria-label="Close"
-            >
-              <X className="w-4 h-4 text-neutral-600" />
-            </button>
-
-            <div className="p-6 pt-4 md:pt-6">
-              {/* Category + badges */}
-              <div className="flex items-center gap-2 mb-4">
-                <span className={cn(
-                  'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium',
-                  config?.bgColor, config?.color
-                )}>
-                  {config && <config.icon className="w-3 h-3" />}
+            {/* Top bar */}
+            <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-4 bg-stone-50/90 backdrop-blur-xl border-b border-stone-200/50">
+              <div className="flex items-center gap-2">
+                <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center', config?.bgColor)}>
+                  {config && <config.icon className={cn('w-3.5 h-3.5', config.color)} />}
+                </div>
+                <span className={cn('text-[11px] font-bold uppercase tracking-wider', config?.color)}>
                   {config?.label}
                 </span>
                 {deal.isExpiringSoon && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-50 text-red-600">
-                    <Flame className="w-3 h-3" />
-                    Expiring Soon
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-semibold bg-red-50 text-red-500">
+                    <Flame className="w-2.5 h-2.5" />
+                    Ending soon
                   </span>
                 )}
               </div>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-lg hover:bg-stone-200/60 active:scale-95 transition-all"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4 text-stone-500" />
+              </button>
+            </div>
 
+            <div className="px-5 py-5">
               {/* Title */}
-              <h2 className="text-2xl font-bold text-neutral-900 mb-2">{deal.name}</h2>
+              <h2 className="text-xl font-bold text-stone-900 mb-1.5 leading-tight">{deal.name}</h2>
 
               {/* Location */}
               {(deal.location || deal.emirate) && (
-                <div className="flex items-center gap-1.5 text-sm text-neutral-500 mb-4">
-                  <MapPin className="w-4 h-4" />
+                <div className="flex items-center gap-1.5 text-[13px] text-stone-400 mb-5">
+                  <MapPin className="w-3.5 h-3.5" />
                   <span>{[deal.location, deal.emirate].filter(Boolean).join(', ')}</span>
                 </div>
               )}
 
-              {/* Offer */}
-              <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-100 mb-4">
-                <p className="text-sm font-medium text-neutral-800">{deal.offer}</p>
+              {/* Offer card */}
+              <div className="p-4 rounded-xl bg-white shadow-sm shadow-stone-200/60 mb-5">
+                <p className="text-[13px] text-stone-600 leading-relaxed">{deal.offer}</p>
                 {deal.price && (
-                  <p className="text-2xl font-bold text-neutral-900 mt-2 inline-flex items-center gap-1">
-                    <DirhamIcon className="w-5 h-5 opacity-70" />
-                    {deal.price.replace(/[^0-9.,FREE free]/gi, '').trim() || deal.price}
-                  </p>
+                  <div className="mt-3 pt-3 border-t border-stone-100 flex items-baseline gap-2">
+                    <PriceDisplay price={deal.price} className="text-2xl font-bold text-stone-900" />
+                  </div>
                 )}
               </div>
 
               {/* Valid until */}
               {deal.validUntil && (
-                <div className="flex items-center gap-1.5 text-sm text-neutral-500 mb-4">
-                  <Clock className="w-4 h-4" />
+                <div className="flex items-center gap-1.5 text-[13px] text-stone-400 mb-5">
+                  <Clock className="w-3.5 h-3.5" />
                   <span>Valid: {deal.validUntil}</span>
                 </div>
               )}
 
-              {/* Details grid */}
+              {/* Details */}
               {details.length > 0 && (
-                <div className="space-y-3 mb-6">
+                <div className="mb-6 space-y-0">
                   {details.map((d, i) => (
-                    <div key={i} className="flex gap-3">
-                      <span className="text-xs font-medium text-neutral-400 uppercase tracking-wider w-24 shrink-0 pt-0.5">
+                    <div key={i} className="flex gap-4 py-2.5 border-b border-stone-100 last:border-0">
+                      <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider w-20 shrink-0 pt-0.5">
                         {d.label}
                       </span>
-                      <span className="text-sm text-neutral-700 flex-1">{d.value}</span>
+                      <span className="text-[13px] text-stone-700 flex-1 leading-relaxed">{d.value}</span>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Action buttons */}
-              <div className="flex gap-3 mb-6">
-                {'bookVia' in deal && deal.bookVia && (
-                  <a
-                    href={deal.bookVia.startsWith('http') ? deal.bookVia : `tel:${deal.bookVia}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-neutral-900 text-white rounded-xl font-medium text-sm hover:bg-neutral-800 transition-colors"
-                  >
-                    {deal.bookVia.startsWith('http') ? (
-                      <><ExternalLink className="w-4 h-4" /> Book Now</>
-                    ) : (
-                      <><Phone className="w-4 h-4" /> Call to Book</>
-                    )}
-                  </a>
-                )}
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => toggleFavorite(deal.id)}
-                  className={cn(
-                    'px-4 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-2',
-                    fav
-                      ? 'bg-red-50 text-red-600 border border-red-200'
-                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                  )}
-                >
-                  <Heart className={cn('w-4 h-4', fav && 'fill-red-500')} />
-                  {fav ? 'Saved' : 'Save'}
-                </motion.button>
-              </div>
+              {/* Actions */}
+              <div className="space-y-2.5 mb-6">
+                {'bookVia' in deal && deal.bookVia && (() => {
+                  const raw = String(deal.bookVia).trim();
+                  const isUrl = /^https?:\/\//i.test(raw);
+                  const isPhone = /^[+\d][\d\s()-]{5,}$/.test(raw);
+                  if (!isUrl && !isPhone) return null;
+                  return (
+                    <a
+                      href={isUrl ? raw : `tel:${raw.replace(/[^\d+]/g, '')}`}
+                      target={isUrl ? '_blank' : undefined}
+                      rel={isUrl ? 'noopener noreferrer' : undefined}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-stone-900 text-white rounded-xl font-medium text-sm hover:bg-stone-800 active:scale-[0.98] transition-all"
+                    >
+                      {isUrl ? (
+                        <><ExternalLink className="w-4 h-4" /> Book Now <ArrowRight className="w-3.5 h-3.5 ml-auto" /></>
+                      ) : (
+                        <><Phone className="w-4 h-4" /> Call to Book</>
+                      )}
+                    </a>
+                  );
+                })()}
 
-              {/* Share row */}
-              <div className="flex gap-2 mb-8">
-                <button
-                  onClick={handleShare}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 text-sm font-medium transition-colors"
-                >
-                  <Share2 className="w-4 h-4" />
-                  Share via WhatsApp
-                </button>
-                <button
-                  onClick={handleCopyLink}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-100 text-neutral-600 hover:bg-neutral-200 text-sm font-medium transition-colors"
-                >
-                  {linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {linkCopied ? 'Copied' : 'Copy Link'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => toggleFavorite(deal.id)}
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium active:scale-[0.98] transition-all',
+                      fav
+                        ? 'bg-red-50 text-red-600'
+                        : 'bg-white text-stone-600 shadow-sm shadow-stone-200/60 hover:bg-stone-100'
+                    )}
+                  >
+                    <Heart className={cn('w-4 h-4', fav && 'fill-red-500')} />
+                    {fav ? 'Saved' : 'Save'}
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-stone-600 shadow-sm shadow-stone-200/60 hover:bg-stone-100 text-sm font-medium active:scale-[0.98] transition-all"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share
+                  </button>
+                  <button
+                    onClick={handleCopyLink}
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-stone-600 shadow-sm shadow-stone-200/60 hover:bg-stone-100 text-sm font-medium active:scale-[0.98] transition-all"
+                  >
+                    {linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               {/* Related deals */}
               {related.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-3">
-                    Related Deals
+                  <h3 className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider mb-3">
+                    Similar Deals
                   </h3>
                   <div className="space-y-2">
                     {related.map(r => (

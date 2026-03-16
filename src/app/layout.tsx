@@ -95,7 +95,7 @@ export default function RootLayout({
           gtag('config', 'G-P3L6DHYDZT');
         `}
       </Script>
-      <body className={`${geistSans.variable} font-sans antialiased bg-white`}>
+      <body className={`${geistSans.variable} font-sans antialiased bg-stone-50`}>
         <DealsProvider>
           {children}
           <Toaster position="bottom-center" />
