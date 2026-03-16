@@ -1,261 +1,189 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+import { Search, Flame, ChevronRight } from 'lucide-react';
 import { useDeals } from '@/contexts/deals-context';
-import { Zap, TrendingUp, MapPin, Tag, Building2, UtensilsCrossed, Ticket, ChevronRight } from 'lucide-react';
+import { CategoryKey, AnyDeal } from '@/lib/types';
 import { DirhamIcon } from './dirham-icon';
-import { AnyDeal } from '@/lib/types';
 import { DealDetail } from './deal-detail';
 import { createPortal } from 'react-dom';
 
-const TAGLINES = [
-  'Hotels & Staycations',
-  'Dining & Happy Hours',
-  'Free Attractions',
-  'Delivery Promo Codes',
-  'Spa & Wellness',
+const CATEGORY_IMAGES: { key: CategoryKey; label: string; image: string }[] = [
+  { key: 'hotels', label: 'Hotels', image: '/category/Hotels.png' },
+  { key: 'dining', label: 'Dining', image: '/category/Dining.png' },
+  { key: 'attractions', label: 'Attractions', image: '/category/Attractions.png' },
+  { key: 'delivery', label: 'Delivery', image: '/category/Delivery.png' },
+  { key: 'spa', label: 'Spa', image: '/category/Spa.png' },
+  { key: 'shopping', label: 'Shopping', image: '/category/shopping.png' },
+  { key: 'eid', label: 'Eid', image: '/category/Eid.png' },
 ];
 
-function SpotlightCard({
-  icon: Icon,
-  iconColor,
-  iconBg,
-  label,
-  title,
-  subtitle,
-  price,
-  badge,
-  delay,
-  deal,
-  onOpen,
-}: {
-  icon: React.ElementType;
-  iconColor: string;
-  iconBg: string;
-  label: string;
-  title: string;
-  subtitle: string;
-  price?: string;
-  badge?: string;
-  delay: number;
-  deal?: AnyDeal;
-  onOpen?: (deal: AnyDeal) => void;
-}) {
-  return (
-    <div className="flex-1 min-w-[150px] sm:min-w-0 snap-start">
-      <button
-        onClick={() => deal && onOpen?.(deal)}
-        className="w-full text-left p-3 sm:p-3.5 bg-white rounded-xl border border-neutral-100 active:scale-[0.97] transition-[transform,border-color,box-shadow] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer group hover-lift"
-      >
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5">
-            <div className={`w-6 h-6 rounded-lg ${iconBg} flex items-center justify-center`}>
-              <Icon className={`w-3 h-3 ${iconColor}`} />
-            </div>
-            <span className={`text-[10px] font-bold uppercase tracking-wider ${iconColor}`}>{label}</span>
-          </div>
-          <ChevronRight className="w-3 h-3 text-neutral-300 group-hover:text-neutral-500 transition-colors" />
-        </div>
-        <p className="text-[12px] sm:text-[13px] font-semibold text-neutral-800 leading-tight truncate">{title}</p>
-        <p className="text-[10px] sm:text-[11px] text-neutral-400 truncate mb-2">{subtitle}</p>
-        <div className="flex items-center gap-1.5">
-          {price && (
-            <span className="inline-flex items-center gap-0.5 text-[13px] sm:text-sm font-bold text-neutral-900">
-              <DirhamIcon className="w-3 h-3 opacity-70" />
-              {price}
-            </span>
-          )}
-          {badge && (
-            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
-              {badge}
-            </span>
-          )}
-        </div>
-      </button>
-    </div>
-  );
-}
-
 export function Hero() {
-  const [taglineIndex, setTaglineIndex] = useState(0);
-  const [spotlightIndex, setSpotlightIndex] = useState(0);
+  const { setCategory, getCategoryCount, setSearch, allDeals, filters } = useDeals();
+  const [promoIndex, setPromoIndex] = useState(0);
   const [openDeal, setOpenDeal] = useState<AnyDeal | null>(null);
-  const { allDeals, dealsByCategory } = useDeals();
+
+  const promoDeals = allDeals.filter(d =>
+    d.price?.toLowerCase().includes('free') || d.isExpiringSoon
+  ).slice(0, 5);
 
   useEffect(() => {
+    if (promoDeals.length <= 1) return;
     const interval = setInterval(() => {
-      setTaglineIndex(prev => (prev + 1) % TAGLINES.length);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Rotate through deals every 5 seconds
-  const hotelDeals = dealsByCategory.hotels || [];
-  const diningDeals = dealsByCategory.dining || [];
-  const attractionDeals = dealsByCategory.attractions || [];
-
-  useEffect(() => {
-    if (openDeal) return; // pause shuffle when detail is open
-    const maxLen = Math.max(hotelDeals.length, diningDeals.length, attractionDeals.length, 1);
-    const interval = setInterval(() => {
-      setSpotlightIndex(prev => (prev + 1) % maxLen);
+      setPromoIndex(prev => (prev + 1) % promoDeals.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [hotelDeals.length, diningDeals.length, attractionDeals.length, openDeal]);
+  }, [promoDeals.length]);
 
-  const hotelDeal = hotelDeals[spotlightIndex % Math.max(hotelDeals.length, 1)];
-  const diningDeal = diningDeals[spotlightIndex % Math.max(diningDeals.length, 1)];
-  const attractionDeal = attractionDeals[spotlightIndex % Math.max(attractionDeals.length, 1)];
+  const promoDeal = promoDeals[promoIndex];
 
   return (
-    <section className="relative pt-18 pb-3 overflow-x-clip">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-50/80 via-slate-50/50 to-white pointer-events-none" />
-      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-gradient-to-bl from-blue-100/40 via-cyan-50/20 to-transparent rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-20 left-0 w-[400px] h-[400px] bg-gradient-to-br from-indigo-100/20 via-transparent to-transparent rounded-full blur-3xl pointer-events-none" />
+    <section className="pt-16 pb-2 bg-gradient-to-b from-amber-50/40 via-stone-50 to-stone-50">
+      <div className="max-w-7xl mx-auto px-4">
 
-      {/* Dot pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.02] pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-        }}
-      />
-
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-5 pt-6 pb-2 z-10">
-        {/* Live badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="flex justify-center mb-4"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur border border-neutral-200/60 shadow-sm">
-            <motion.div
-              animate={{ opacity: [1, 0.4, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <Zap className="w-3 h-3 text-amber-500" />
-            </motion.div>
-            <span className="text-[11px] font-semibold text-neutral-600">Live</span>
-            <div className="w-px h-3 bg-neutral-200" />
-            <span className="text-[11px] text-neutral-500">{allDeals.length}+ deals</span>
-          </div>
-        </motion.div>
-
-        {/* Headline */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-2"
-        >
-          <h1 className="text-[1.75rem] sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.15]">
-            <span className="text-neutral-900">Discover </span>
-            <span className="bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">
-              the best deals
-            </span>
-            <br className="sm:hidden" />
-            <span className="text-neutral-900"> across the UAE</span>
-          </h1>
-        </motion.div>
-
-        {/* Animated tagline */}
-        <div className="h-6 flex items-center justify-center mb-5">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={taglineIndex}
-              initial={{ opacity: 0, transform: 'translateY(6px)', filter: 'blur(3px)' }}
-              animate={{ opacity: 1, transform: 'translateY(0px)', filter: 'blur(0px)' }}
-              exit={{ opacity: 0, transform: 'translateY(-6px)', filter: 'blur(3px)' }}
-              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-              className="flex items-center gap-2 text-neutral-400"
-            >
-              <Tag className="w-3.5 h-3.5" />
-              <span className="text-sm font-medium">{TAGLINES[taglineIndex]}</span>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Spotlight deal cards */}
+        {/* Search */}
         <div className="relative mb-5">
-          <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none sm:hidden" />
-          <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none sm:hidden" />
-          <div
-            className="flex gap-3 overflow-x-auto no-scrollbar sm:overflow-visible p-3 rounded-2xl bg-neutral-50/60 border border-neutral-100/50"
-          >
-            <SpotlightCard
-              icon={Building2}
-              iconColor="text-slate-600"
-              iconBg="bg-slate-100"
-              label="Hotels"
-              title={hotelDeal?.name || '...'}
-              subtitle={hotelDeal?.offer || ''}
-              price={hotelDeal?.price?.replace(/[^0-9]/g, '') || ''}
-              delay={0}
-              deal={hotelDeal}
-              onOpen={setOpenDeal}
-            />
-            <SpotlightCard
-              icon={UtensilsCrossed}
-              iconColor="text-amber-700"
-              iconBg="bg-amber-50"
-              label="Dining"
-              title={diningDeal?.name || '...'}
-              subtitle={diningDeal?.offer || ''}
-              price={diningDeal?.price?.replace(/[^0-9]/g, '') || ''}
-              delay={0}
-              deal={diningDeal}
-              onOpen={setOpenDeal}
-            />
-            <SpotlightCard
-              icon={Ticket}
-              iconColor="text-teal-700"
-              iconBg="bg-teal-50"
-              label="Attractions"
-              title={attractionDeal?.name || '...'}
-              subtitle={attractionDeal?.offer || ''}
-              badge={attractionDeal?.price?.toLowerCase().includes('free') ? 'FREE' : ''}
-              price={attractionDeal?.price?.toLowerCase().includes('free') ? '' : attractionDeal?.price?.replace(/[^0-9]/g, '')}
-              delay={0}
-              deal={attractionDeal}
-              onOpen={setOpenDeal}
-            />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-stone-300 pointer-events-none" />
+          <input
+            type="text"
+            defaultValue={filters.search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="What are you looking for?"
+            className="w-full pl-11 pr-4 py-3.5 bg-white rounded-2xl text-[15px] outline-none ring-1 ring-stone-100 placeholder:text-stone-300 text-stone-800 focus:ring-stone-300 transition-[box-shadow] duration-200"
+          />
+        </div>
+
+        {/* Categories — big, scrollable, visual */}
+        <div className="relative mb-5">
+          <div className="absolute right-0 top-0 bottom-6 w-10 bg-gradient-to-l from-stone-50 to-transparent z-10 pointer-events-none" />
+
+          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {/* All button */}
+            <button
+              onClick={() => setCategory('all')}
+              className={`flex flex-col items-center shrink-0 active:scale-[0.93] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]`}
+            >
+              <div className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-[20px] mb-1.5 flex items-center justify-center transition-all duration-200 ${
+                filters.category === 'all'
+                  ? 'bg-stone-900 shadow-xl shadow-stone-900/25'
+                  : 'bg-white shadow-md shadow-stone-200/40'
+              }`}>
+                <span className={`text-[22px] sm:text-[26px] font-black ${
+                  filters.category === 'all' ? 'text-white' : 'text-stone-800'
+                }`}>All</span>
+                <span className={`absolute top-1 right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[9px] font-bold ${
+                  filters.category === 'all'
+                    ? 'bg-white text-stone-900'
+                    : 'bg-stone-900 text-white'
+                }`}>
+                  {allDeals.length}
+                </span>
+              </div>
+              <span className={`text-[12px] font-semibold ${
+                filters.category === 'all' ? 'text-stone-900' : 'text-stone-500'
+              }`}>
+                All Deals
+              </span>
+            </button>
+
+            {CATEGORY_IMAGES.map((cat, i) => {
+              const count = getCategoryCount(cat.key);
+              const isActive = filters.category === cat.key;
+              return (
+                <button
+                  key={cat.key}
+                  onClick={() => setCategory(isActive ? 'all' : cat.key)}
+                  className="relative flex flex-col items-center shrink-0 active:scale-[0.93] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
+                  style={{ animationDelay: `${i * 40}ms` }}
+                >
+                  <div className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-[20px] mb-1.5 overflow-hidden transition-all duration-200 ${
+                    isActive
+                      ? 'bg-stone-900 shadow-xl shadow-stone-900/25 scale-[1.02]'
+                      : 'bg-white shadow-md shadow-stone-200/40'
+                  }`}>
+                    <Image
+                      src={cat.image}
+                      alt={cat.label}
+                      fill
+                      className="object-cover scale-125"
+                      sizes="96px"
+                    />
+                    {count > 0 && (
+                      <span className={`absolute top-1 right-1 z-10 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[9px] font-bold ${
+                        isActive
+                          ? 'bg-white text-stone-900'
+                          : 'bg-stone-900 text-white'
+                      }`}>
+                        {count}
+                      </span>
+                    )}
+                  </div>
+                  <span className={`text-[12px] font-semibold ${
+                    isActive ? 'text-stone-900' : 'text-stone-500'
+                  }`}>
+                    {cat.label}
+                  </span>
+                </button>
+              );
+            })}
+            <div className="shrink-0 w-6" aria-hidden="true" />
           </div>
         </div>
 
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="flex items-center justify-center gap-4 sm:gap-6 text-[11px] sm:text-xs text-neutral-400"
-        >
-          <div className="flex items-center gap-1">
-            <MapPin className="w-3 h-3" />
-            <span>7 Emirates</span>
-          </div>
-          <div className="w-1 h-1 rounded-full bg-neutral-300" />
-          <div className="flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" />
-            <span>Updated daily</span>
-          </div>
-          <div className="w-1 h-1 rounded-full bg-neutral-300" />
-          <div className="flex items-center gap-1">
-            <Zap className="w-3 h-3" />
-            <span>100% free</span>
-          </div>
-        </motion.div>
+        {/* Promo banner */}
+        {promoDeal && (
+          <button
+            onClick={() => setOpenDeal(promoDeal)}
+            className="w-full text-left mb-3 rounded-2xl bg-stone-900 text-white overflow-hidden relative active:scale-[0.98] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]">
+            <div className="absolute inset-0 opacity-[0.04]" style={{
+              backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)',
+              backgroundSize: '14px 14px',
+            }} />
+            <div className="relative p-4 flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                {promoDeal.isExpiringSoon && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-400 mb-1">
+                    <Flame className="w-3 h-3" />
+                    Ending soon
+                  </span>
+                )}
+                <p className="text-[14px] font-semibold leading-snug truncate">{promoDeal.name}</p>
+                <p className="text-[11px] text-white/50 truncate mt-0.5">{promoDeal.offer}</p>
+              </div>
+              <div className="shrink-0 flex items-center gap-2">
+                {promoDeal.price?.toLowerCase().includes('free') ? (
+                  <span className="text-[18px] font-black text-emerald-400">FREE</span>
+                ) : promoDeal.price ? (
+                  <span className="text-[18px] font-black inline-flex items-center gap-0.5">
+                    <DirhamIcon className="w-3.5 h-3.5 opacity-60" />
+                    {promoDeal.price.replace(/[^0-9,]/g, '').trim()}
+                  </span>
+                ) : null}
+                <ChevronRight className="w-4 h-4 text-white/30" />
+              </div>
+            </div>
+            {promoDeals.length > 1 && (
+              <div className="flex gap-1 justify-center pb-2.5">
+                {promoDeals.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-[3px] rounded-full transition-all duration-300 ${
+                      i === promoIndex ? 'w-5 bg-white/70' : 'w-[3px] bg-white/15'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </button>
+        )}
 
         {/* Credits */}
-        <p className="text-center text-[11px] text-neutral-300 mt-4">
-          Curated by <span className="text-neutral-400 font-medium">Dom</span> from <span className="text-neutral-400 font-medium">Adtech Chat MENA</span> WhatsApp Group
+        <p className="text-center text-[10px] text-stone-300">
+          Curated by <span className="text-stone-400 font-medium">Dom</span> from <span className="text-stone-400 font-medium">Adtech Chat MENA</span>
         </p>
       </div>
 
-      {/* Deal detail portal — rendered outside hero DOM to avoid z-index/overflow issues */}
       {openDeal && typeof document !== 'undefined' && createPortal(
         <DealDetail deal={openDeal} open={true} onClose={() => setOpenDeal(null)} onChangeDeal={setOpenDeal} />,
         document.body
