@@ -32,23 +32,30 @@ export function TopBar() {
       >
         <div className="max-w-7xl mx-auto px-5 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            {/* Price tag icon */}
             <motion.div
-              whileHover={{ rotate: -12 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               className="relative"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.92 }}
+              animate={{
+                rotate: [0, 0, -12, 14, -6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                scale: [1, 1, 1.1, 0.95, 1.05, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
             >
-              <div className="w-9 h-9 rounded-xl bg-neutral-900 flex items-center justify-center shadow-lg shadow-neutral-900/20 group-hover:shadow-neutral-900/30 transition-shadow">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-stone-700 to-stone-900 flex items-center justify-center shadow-lg shadow-stone-800/25 group-hover:shadow-stone-800/40 transition-shadow ring-1 ring-white/10">
                 <Tag className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
               </div>
               <motion.div
                 className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full border-[1.5px] border-white"
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                animate={{ scale: [1, 1, 1, 1.4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
               />
             </motion.div>
 
-            {/* Text logo */}
             <div className="flex items-baseline">
               <span className="text-[22px] font-extrabold tracking-tight text-neutral-900">
                 DXB
