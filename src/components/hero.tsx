@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Search, Flame, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useDeals } from '@/contexts/deals-context';
 import { CategoryKey, AnyDeal } from '@/lib/types';
 import { DirhamIcon } from './dirham-icon';
@@ -62,7 +63,10 @@ export function Hero() {
             {/* All button */}
             <button
               onClick={() => setCategory('all')}
-              className={`flex flex-col items-center shrink-0 active:scale-[0.93] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]`}
+              className={cn(
+                'flex flex-col items-center shrink-0 active:scale-[0.93] transition-[transform,opacity] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]',
+                filters.category !== 'all' && 'opacity-50'
+              )}
             >
               <div className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-[20px] mb-1.5 flex items-center justify-center transition-all duration-200 ${
                 filters.category === 'all'
@@ -94,7 +98,10 @@ export function Hero() {
                 <button
                   key={cat.key}
                   onClick={() => setCategory(isActive ? 'all' : cat.key)}
-                  className="relative flex flex-col items-center shrink-0 active:scale-[0.93] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
+                  className={cn(
+                    'relative flex flex-col items-center shrink-0 active:scale-[0.93] transition-[transform,opacity] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]',
+                    filters.category !== 'all' && !isActive && 'opacity-50'
+                  )}
                   style={{ animationDelay: `${i * 40}ms` }}
                 >
                   <div className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-[20px] mb-1.5 overflow-hidden transition-all duration-200 ${
