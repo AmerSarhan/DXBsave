@@ -2,15 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Heart, Search, Tag } from 'lucide-react';
+import { Heart, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useDeals } from '@/contexts/deals-context';
-import { SearchOverlay } from './search-overlay';
-
 export function TopBar() {
   const [scrolled, setScrolled] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const { favoriteDeals } = useDeals();
 
   useEffect(() => {
@@ -75,7 +72,7 @@ export function TopBar() {
             </div>
           </Link>
 
-          <div className="flex items-center gap-0.5">
+          <div className="hidden md:flex items-center gap-0.5">
             <Link
               href="/favorites"
               className="relative p-2.5 rounded-xl hover:bg-neutral-100/80 transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-95"
@@ -93,17 +90,9 @@ export function TopBar() {
                 </motion.span>
               )}
             </Link>
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="p-2.5 rounded-xl hover:bg-neutral-100/80 transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-95"
-              aria-label="Search deals"
-            >
-              <Search className="w-[18px] h-[18px] text-neutral-500" />
-            </button>
           </div>
         </div>
       </header>
-      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

@@ -162,8 +162,18 @@ function MiniDealCard({ deal, onTap }: { deal: DealResult; onTap: () => void }) 
   );
 }
 
-export function AskWidget() {
-  const [open, setOpen] = useState(false);
+interface AskWidgetProps {
+  externalOpen?: boolean;
+  onExternalClose?: () => void;
+}
+
+export function AskWidget({ externalOpen, onExternalClose }: AskWidgetProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen || internalOpen;
+  const setOpen = (v: boolean) => {
+    setInternalOpen(v);
+    if (!v && onExternalClose) onExternalClose();
+  };
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -242,7 +252,7 @@ export function AskWidget() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-5 z-40 flex items-center gap-2 px-4 py-2.5 bg-stone-900 text-white rounded-full shadow-lg shadow-stone-900/20 hover:bg-stone-800 active:scale-95 transition-all text-sm font-medium touch-manipulation"
+          className="hidden md:flex fixed bottom-6 right-5 z-40 items-center gap-2 px-4 py-2.5 bg-stone-900 text-white rounded-full shadow-lg shadow-stone-900/20 hover:bg-stone-800 active:scale-95 transition-all text-sm font-medium touch-manipulation"
         >
           <MessageSquareText className="w-4 h-4" />
           Ask

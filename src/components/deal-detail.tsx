@@ -107,16 +107,13 @@ export function DealDetail({ deal, open, onClose, onChangeDeal }: DealDetailProp
           />
 
           <div
-            ref={panelRef}
             className={cn(
-              'fixed z-[70] bg-white overflow-y-auto overscroll-contain shadow-2xl animate-panel-in',
-              // Mobile: bottom sheet
+              'fixed z-[70] bg-white shadow-2xl animate-panel-in flex flex-col',
               'inset-x-0 bottom-0 top-3 rounded-t-[20px]',
-              // Desktop: centered modal
               'md:inset-auto md:top-1/2 md:left-1/2 md:w-[560px] md:max-h-[85vh] md:rounded-2xl'
             )}
           >
-            <div className={cn('transition-opacity duration-150', swapping ? 'opacity-0' : 'opacity-100')}>
+            <div ref={panelRef} className={cn('flex-1 overflow-y-auto overscroll-contain transition-opacity duration-150', swapping ? 'opacity-0' : 'opacity-100')}>
 
               {/* Hero header with category color */}
               <div className={cn('relative px-5 pt-5 pb-4', config?.bgColor)}>
@@ -205,58 +202,7 @@ export function DealDetail({ deal, open, onClose, onChangeDeal }: DealDetailProp
                   </div>
                 )}
 
-                {/* Actions */}
-                <div className="py-4 space-y-2.5">
-                  {'bookVia' in deal && deal.bookVia && (() => {
-                    const raw = String(deal.bookVia).trim();
-                    const isUrl = /^https?:\/\//i.test(raw);
-                    const isPhone = /^[+\d][\d\s()-]{5,}$/.test(raw);
-                    if (!isUrl && !isPhone) return null;
-                    return (
-                      <a
-                        href={isUrl ? raw : `tel:${raw.replace(/[^\d+]/g, '')}`}
-                        target={isUrl ? '_blank' : undefined}
-                        rel={isUrl ? 'noopener noreferrer' : undefined}
-                        className="flex items-center justify-center gap-2 w-full px-4 py-3.5 bg-stone-900 text-white rounded-2xl font-semibold text-[14px] active:scale-[0.97] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
-                      >
-                        {isUrl ? (
-                          <><ExternalLink className="w-4 h-4" /> Book Now</>
-                        ) : (
-                          <><Phone className="w-4 h-4" /> Call to Book</>
-                        )}
-                      </a>
-                    );
-                  })()}
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => toggleFavorite(deal.id)}
-                      className={cn(
-                        'flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-[13px] font-semibold active:scale-[0.97] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]',
-                        fav
-                          ? 'bg-red-50 text-red-600'
-                          : 'bg-stone-100 text-stone-600'
-                      )}
-                    >
-                      <Heart className={cn('w-4 h-4', fav && 'fill-red-500')} />
-                      {fav ? 'Saved' : 'Save'}
-                    </button>
-                    <button
-                      onClick={handleShare}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-stone-100 text-stone-600 text-[13px] font-semibold active:scale-[0.97] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      Share
-                    </button>
-                    <button
-                      onClick={handleCopyLink}
-                      className="px-4 py-3 rounded-2xl bg-stone-100 text-stone-600 active:scale-[0.97] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
-                    >
-                      {linkCopied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                    </button>
-                  </div>
                 </div>
-              </div>
 
               {/* Related deals */}
               {related.length > 0 && (
@@ -298,6 +244,49 @@ export function DealDetail({ deal, open, onClose, onChangeDeal }: DealDetailProp
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Sticky bottom actions */}
+            <div className="shrink-0 border-t border-stone-100 bg-white px-5 py-3 safe-bottom">
+              <div className="flex gap-2">
+                {'bookVia' in deal && deal.bookVia && (() => {
+                  const raw = String(deal.bookVia).trim();
+                  const isUrl = /^https?:\/\//i.test(raw);
+                  const isPhone = /^[+\d][\d\s()-]{5,}$/.test(raw);
+                  if (!isUrl && !isPhone) return null;
+                  return (
+                    <a
+                      href={isUrl ? raw : `tel:${raw.replace(/[^\d+]/g, '')}`}
+                      target={isUrl ? '_blank' : undefined}
+                      rel={isUrl ? 'noopener noreferrer' : undefined}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-stone-900 text-white rounded-xl font-semibold text-[14px] active:scale-[0.97] transition-transform duration-[160ms]"
+                    >
+                      {isUrl ? <><ExternalLink className="w-4 h-4" /> Book Now</> : <><Phone className="w-4 h-4" /> Call</>}
+                    </a>
+                  );
+                })()}
+                <button
+                  onClick={() => toggleFavorite(deal.id)}
+                  className={cn(
+                    'px-4 py-3 rounded-xl active:scale-[0.97] transition-transform duration-[160ms]',
+                    fav ? 'bg-red-50 text-red-600' : 'bg-stone-100 text-stone-600'
+                  )}
+                >
+                  <Heart className={cn('w-5 h-5', fav && 'fill-red-500')} />
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="px-4 py-3 rounded-xl bg-stone-100 text-stone-600 active:scale-[0.97] transition-transform duration-[160ms]"
+                >
+                  <Share2 className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={handleCopyLink}
+                  className="px-4 py-3 rounded-xl bg-stone-100 text-stone-600 active:scale-[0.97] transition-transform duration-[160ms]"
+                >
+                  {linkCopied ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
           </div>
         </>

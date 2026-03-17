@@ -108,6 +108,7 @@ export function Hero() {
                       fill
                       className="object-cover scale-125"
                       sizes="96px"
+                      priority={i < 4}
                     />
                     {count > 0 && (
                       <span className={`absolute top-1 right-1 z-10 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[9px] font-bold ${

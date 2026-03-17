@@ -119,7 +119,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
 
   return (
     <>
-      <div className="fixed inset-0 z-[60] bg-stone-50 flex flex-col">
+      <div className="fixed inset-0 top-14 z-[45] bg-stone-50 flex flex-col">
         {/* Search header */}
         <div className="bg-white border-b border-stone-100 safe-top">
           <div className="flex items-center gap-2 px-3 py-2.5">

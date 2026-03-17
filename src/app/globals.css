@@ -241,3 +241,30 @@
 .safe-bottom {
   padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
 }
+
+/* iOS-style view transitions */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: 250ms cubic-bezier(0.23, 1, 0.32, 1) both slide-out-left;
+}
+::view-transition-new(root) {
+  animation: 250ms cubic-bezier(0.23, 1, 0.32, 1) both slide-in-right;
+}
+@keyframes slide-out-left {
+  to { transform: translateX(-20%); opacity: 0.6; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(20%); opacity: 0.6; }
+}
+
+/* Bottom nav spring on tap */
+@keyframes nav-press {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.85); }
+  100% { transform: scale(1); }
+}
+.nav-press:active {
+  animation: nav-press 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
