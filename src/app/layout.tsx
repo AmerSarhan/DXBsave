@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { DealsProvider } from "@/contexts/deals-context";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -131,6 +132,7 @@ export default function RootLayout({
         <DealsProvider>
           {children}
           <Toaster position="bottom-center" />
+          <Analytics />
         </DealsProvider>
       </body>
     </html>
