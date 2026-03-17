@@ -22,7 +22,7 @@ export function CategoryBar() {
   const { filters, setEmirate, setSort } = useDeals();
 
   return (
-    <div className="sticky top-14 z-40 bg-stone-50/90 backdrop-blur-2xl border-b border-stone-200/40">
+    <div className="sticky top-14 z-40 bg-stone-50 border-b border-stone-200/40 will-change-transform">
       <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-2">
         <div className="flex-1 flex gap-1.5 overflow-x-auto no-scrollbar min-w-0">
           {EMIRATES.map((emirate) => (

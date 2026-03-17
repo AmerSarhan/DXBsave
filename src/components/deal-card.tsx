@@ -209,25 +209,30 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
           )}
         </div>
 
-        {/* Bottom bar — actions + meta */}
-        <div className="px-5 py-3 bg-stone-50/50 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        {/* Bottom bar — actions with labels */}
+        <div className="px-5 py-2.5 bg-stone-50/50 flex items-center justify-between">
+          <div className="flex items-center gap-1">
             <button
               onClick={(e) => { e.stopPropagation(); toggleFavorite(deal.id); }}
-              className="p-2 -ml-2 rounded-xl active:scale-[0.85] transition-transform duration-100"
+              className={cn(
+                'flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-colors duration-150 text-[11px] font-medium',
+                fav ? 'text-red-500' : 'text-stone-400'
+              )}
               aria-label={fav ? 'Remove from favorites' : 'Save to favorites'}
             >
-              <Heart className={cn('w-[18px] h-[18px] transition-colors', fav ? 'fill-red-500 text-red-500' : 'text-stone-300')} />
+              <Heart className={cn('w-3.5 h-3.5 transition-transform duration-150', fav ? 'fill-red-500 scale-110' : 'scale-100')} />
+              {fav ? 'Saved' : 'Save'}
             </button>
             <button
               onClick={handleShare}
-              className="p-2 rounded-xl active:scale-[0.85] transition-transform duration-100"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-stone-400 transition-colors duration-150 text-[11px] font-medium active:text-stone-600"
               aria-label="Share deal"
             >
-              <Share2 className="w-[18px] h-[18px] text-stone-300" />
+              <Share2 className="w-3.5 h-3.5" />
+              Share
             </button>
             {taps > 0 && (
-              <span className="text-[11px] text-stone-300 flex items-center gap-1">
+              <span className="text-[10px] text-stone-300 flex items-center gap-0.5 ml-1">
                 <Eye className="w-3 h-3" />
                 {taps}
               </span>
