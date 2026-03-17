@@ -165,9 +165,10 @@ function MiniDealCard({ deal, onTap }: { deal: DealResult; onTap: () => void }) 
 interface AskWidgetProps {
   externalOpen?: boolean;
   onExternalClose?: () => void;
+  initialQuery?: string;
 }
 
-export function AskWidget({ externalOpen, onExternalClose }: AskWidgetProps = {}) {
+export function AskWidget({ externalOpen, onExternalClose, initialQuery }: AskWidgetProps = {}) {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = externalOpen || internalOpen;
   const setOpen = (v: boolean) => {
@@ -187,6 +188,16 @@ export function AskWidget({ externalOpen, onExternalClose }: AskWidgetProps = {}
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 300);
   }, [open]);
+
+  // Auto-send initial query from search handoff
+  const initialSent = useRef(false);
+  useEffect(() => {
+    if (open && initialQuery && !initialSent.current) {
+      initialSent.current = true;
+      setTimeout(() => send(initialQuery), 200);
+    }
+    if (!open) initialSent.current = false;
+  }, [open, initialQuery]);
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {

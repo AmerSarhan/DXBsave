@@ -24,6 +24,7 @@ const QUICK_SEARCHES = [
 interface SearchOverlayProps {
   open: boolean;
   onClose: () => void;
+  onAskAI?: (query: string) => void;
 }
 
 function SearchResultCard({ deal, onTap }: { deal: AnyDeal; onTap: () => void }) {
@@ -65,7 +66,15 @@ function SearchResultCard({ deal, onTap }: { deal: AnyDeal; onTap: () => void })
   );
 }
 
-export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
+const AI_TRIGGERS = ['what', 'where', 'how', 'best', 'cheapest', 'recommend', 'suggest', 'find me', 'any', 'which', 'help'];
+
+function isQuestion(q: string): boolean {
+  const lower = q.toLowerCase().trim();
+  if (lower.endsWith('?')) return true;
+  return AI_TRIGGERS.some(t => lower.startsWith(t) || lower.includes(' ' + t + ' '));
+}
+
+export function SearchOverlay({ open, onClose, onAskAI }: SearchOverlayProps) {
   const { filters, setSearch, filteredDeals, allDeals, isTrending } = useDeals();
   const inputRef = useRef<HTMLInputElement>(null);
   const [localQuery, setLocalQuery] = useState('');
@@ -214,6 +223,29 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* AI suggestion for question-like queries */}
+          {localQuery.trim() && isQuestion(localQuery) && onAskAI && (
+            <div className="px-4 pb-3">
+              <button
+                onClick={() => {
+                  const q = localQuery;
+                  onClose();
+                  setTimeout(() => onAskAI(q), 100);
+                }}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-stone-900 text-white active:scale-[0.98] transition-transform duration-[160ms] touch-manipulation"
+              >
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                  <Search className="w-4 h-4" />
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="text-[13px] font-semibold">Ask AI instead</p>
+                  <p className="text-[11px] text-white/50 truncate">Get a smart answer for &ldquo;{localQuery}&rdquo;</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-white/30 shrink-0" />
+              </button>
             </div>
           )}
 

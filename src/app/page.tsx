@@ -20,6 +20,7 @@ export default function HomePage() {
   const { setSearch, refresh } = useDeals();
   const [searchOpen, setSearchOpen] = useState(false);
   const [askOpen, setAskOpen] = useState(false);
+  const [askInitialQuery, setAskInitialQuery] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const scrollPositions = useRef<Record<string, number>>({ home: 0, saved: 0 });
   const lastHomeTap = useRef(0);
@@ -76,7 +77,7 @@ export default function HomePage() {
       </div>
 
       <BackToTop />
-      <AskWidget externalOpen={askOpen} onExternalClose={() => { setAskOpen(false); handleTabChange('home'); }} />
+      <AskWidget externalOpen={askOpen} onExternalClose={() => { setAskOpen(false); setAskInitialQuery(''); handleTabChange('home'); }} initialQuery={askInitialQuery} />
       <BottomNav
         activeTab={activeTab}
         onTabChange={handleTabChange}
@@ -85,7 +86,17 @@ export default function HomePage() {
         onAskOpen={() => setAskOpen(true)}
         onAskClose={() => { setAskOpen(false); handleTabChange('home'); }}
       />
-      <SearchOverlay open={searchOpen} onClose={() => { setSearchOpen(false); handleTabChange('home'); setSearch(''); }} />
+      <SearchOverlay
+        open={searchOpen}
+        onClose={() => { setSearchOpen(false); handleTabChange('home'); setSearch(''); }}
+        onAskAI={(query) => {
+          setSearchOpen(false);
+          setSearch('');
+          setAskInitialQuery(query);
+          setAskOpen(true);
+          handleTabChange('ask');
+        }}
+      />
     </main>
   );
 }
