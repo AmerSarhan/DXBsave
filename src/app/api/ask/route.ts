@@ -21,8 +21,7 @@ interface DealRow { name: string; category: string; emirate: string; location: s
 let dealCache: { rows: DealRow[]; fetchedAt: number } | null = null;
 const CACHE_TTL = 10 * 60_000;
 
-const SHEET_BASE_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSUm8ZCBVCcdUoub21h_fppYUhhlviwK_g9crhKAk34rT9bJXgwgdGJ81EPaaJ9Uw/pub?output=csv&gid=';
+const SHEET_BASE_URL = process.env.SHEET_CSV_BASE_URL || '';
 
 const SHEET_CONFIGS: { key: string; gid: string; nameCol: number; offerCol: number; priceCol: number; locationCol: number; emirateCol: number }[] = [
   { key: 'hotels', gid: SHEET_GIDS.hotels, nameCol: 0, offerCol: 4, priceCol: 5, locationCol: 2, emirateCol: 1 },

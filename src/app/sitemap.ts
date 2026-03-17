@@ -3,8 +3,7 @@ import Papa from 'papaparse';
 import { SHEET_GIDS } from '@/lib/constants';
 import { slugify } from '@/lib/utils';
 
-const SHEET_BASE_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSUm8ZCBVCcdUoub21h_fppYUhhlviwK_g9crhKAk34rT9bJXgwgdGJ81EPaaJ9Uw/pub?output=csv&gid=';
+const SHEET_BASE_URL = process.env.SHEET_CSV_BASE_URL || '';
 
 const CATEGORY_SHEETS: { prefix: string; gid: string; nameCol: number }[] = [
   { prefix: 'hotels', gid: SHEET_GIDS.hotels, nameCol: 0 },

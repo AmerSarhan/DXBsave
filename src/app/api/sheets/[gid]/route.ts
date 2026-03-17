@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const SHEET_BASE_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSUm8ZCBVCcdUoub21h_fppYUhhlviwK_g9crhKAk34rT9bJXgwgdGJ81EPaaJ9Uw/pub?output=csv&gid=';
+const SHEET_BASE_URL = process.env.SHEET_CSV_BASE_URL || '';
 
 const VALID_GIDS = new Set([
   '121077454', '1938135534', '595734893', '195924846',

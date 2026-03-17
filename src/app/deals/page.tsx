@@ -8,8 +8,7 @@ export const metadata: Metadata = {
   description: 'Browse 286+ verified deals across the UAE — hotels, dining, attractions, delivery codes, spa, shopping, and Eid specials.',
 };
 
-const SHEET_BASE_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSUm8ZCBVCcdUoub21h_fppYUhhlviwK_g9crhKAk34rT9bJXgwgdGJ81EPaaJ9Uw/pub?output=csv&gid=';
+const SHEET_BASE_URL = process.env.SHEET_CSV_BASE_URL || '';
 
 interface Deal {
   name: string;
