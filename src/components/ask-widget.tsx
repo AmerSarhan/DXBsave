@@ -262,8 +262,8 @@ export function AskWidget({ externalOpen, onExternalClose }: AskWidgetProps = {}
       {/* Chat panel — full screen on mobile, floating on desktop */}
       {open && (
         <div className={cn(
-          'fixed z-50 bg-stone-50 flex flex-col',
-          'inset-0',
+          'fixed z-[55] bg-stone-50 flex flex-col',
+          'inset-0 bottom-[60px]',
           'sm:inset-auto sm:bottom-4 sm:right-4 sm:w-[380px] sm:max-h-[min(600px,calc(100vh-2rem))] sm:rounded-2xl sm:shadow-2xl sm:shadow-stone-900/10 sm:border sm:border-stone-200/60'
         )}>
           {/* Header */}
@@ -397,7 +397,7 @@ export function AskWidget({ externalOpen, onExternalClose }: AskWidgetProps = {}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Search deals, ask anything..."
                 maxLength={500}
-                className="flex-1 text-[14px] bg-stone-50 rounded-xl px-3.5 py-2.5 outline-none placeholder:text-stone-300 text-stone-700 focus:ring-2 focus:ring-stone-200 transition-all"
+                className="flex-1 text-[16px] bg-stone-50 rounded-xl px-3.5 py-2.5 outline-none placeholder:text-stone-300 text-stone-700 focus:ring-2 focus:ring-stone-200 transition-shadow"
               />
               <button
                 type="submit"

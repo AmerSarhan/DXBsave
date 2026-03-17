@@ -50,7 +50,7 @@ export function Hero() {
             defaultValue={filters.search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="What are you looking for?"
-            className="w-full pl-11 pr-4 py-3.5 bg-white rounded-2xl text-[15px] outline-none ring-1 ring-stone-100 placeholder:text-stone-300 text-stone-800 focus:ring-stone-300 transition-[box-shadow] duration-200"
+            className="w-full pl-11 pr-4 py-3.5 bg-white rounded-2xl text-[16px] outline-none ring-1 ring-stone-100 placeholder:text-stone-300 text-stone-800 focus:ring-stone-300 transition-[box-shadow] duration-200"
           />
         </div>
 
