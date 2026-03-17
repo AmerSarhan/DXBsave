@@ -73,14 +73,17 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
 
   useEffect(() => {
     if (open) {
-      setLocalQuery(filters.search);
+      setLocalQuery('');
       setTimeout(() => inputRef.current?.focus(), 50);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
+      setLocalQuery('');
+      setSearch('');
     }
     return () => { document.body.style.overflow = ''; };
-  }, [open, filters.search]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const handleChange = (val: string) => {
     setLocalQuery(val);

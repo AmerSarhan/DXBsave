@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useDeals } from '@/contexts/deals-context';
 import { TopBar } from '@/components/top-bar';
 import { Hero } from '@/components/hero';
 import { CategoryBar } from '@/components/category-bar';
@@ -14,6 +15,7 @@ import { SavedDeals } from '@/components/saved-deals';
 type Tab = 'home' | 'saved' | 'search' | 'ask';
 
 export default function HomePage() {
+  const { setSearch } = useDeals();
   const [searchOpen, setSearchOpen] = useState(false);
   const [askOpen, setAskOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -43,7 +45,7 @@ export default function HomePage() {
         onAskOpen={() => setAskOpen(true)}
         onAskClose={() => { setAskOpen(false); setActiveTab('home'); }}
       />
-      <SearchOverlay open={searchOpen} onClose={() => { setSearchOpen(false); setActiveTab('home'); }} />
+      <SearchOverlay open={searchOpen} onClose={() => { setSearchOpen(false); setActiveTab('home'); setSearch(''); }} />
     </main>
   );
 }
