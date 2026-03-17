@@ -113,7 +113,7 @@ export function DealDetail({ deal, open, onClose, onChangeDeal }: DealDetailProp
               'md:inset-auto md:top-1/2 md:left-1/2 md:w-[560px] md:max-h-[85vh] md:rounded-2xl'
             )}
           >
-            <div ref={panelRef} className={cn('flex-1 overflow-y-auto overscroll-contain transition-opacity duration-150', swapping ? 'opacity-0' : 'opacity-100')}>
+            <div ref={panelRef} data-deal-panel className={cn('flex-1 overflow-y-auto overscroll-contain transition-opacity duration-150', swapping ? 'opacity-0' : 'opacity-100')}>
 
               {/* Hero header with category color */}
               <div className={cn('relative px-5 pt-5 pb-4', config?.bgColor)}>
