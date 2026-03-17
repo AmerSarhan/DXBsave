@@ -25,9 +25,17 @@ export function Hero() {
   const [promoIndex, setPromoIndex] = useState(0);
   const [openDeal, setOpenDeal] = useState<AnyDeal | null>(null);
 
-  const promoDeals = allDeals.filter(d =>
-    d.price?.toLowerCase().includes('free') || d.isExpiringSoon
-  ).slice(0, 5);
+  // Pick one deal per category for variety
+  const promoDeals = (() => {
+    const seen = new Set<string>();
+    const picks = allDeals.filter(d => {
+      if (seen.has(d.category)) return false;
+      if (!d.price && !d.offer.toLowerCase().includes('free')) return false;
+      seen.add(d.category);
+      return true;
+    });
+    return picks.slice(0, 5);
+  })();
 
   useEffect(() => {
     if (promoDeals.length <= 1) return;
@@ -139,67 +147,61 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Featured deal banner */}
-        {promoDeal && (
-          <button
-            onClick={() => setOpenDeal(promoDeal)}
-            className="w-full text-left mb-4 rounded-2xl overflow-hidden relative active:scale-[0.98] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
-          >
-            <div className="bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 p-4 pb-3">
-              {/* Top label */}
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">
-                  Featured Deal
-                </span>
-                {promoDeal.isExpiringSoon && (
-                  <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-400">
-                    <Flame className="w-3 h-3" />
-                    Ending soon
-                  </span>
+        {/* Featured deal */}
+        {promoDeal && (() => {
+          const promoCatImage = CATEGORY_IMAGES.find(c => c.key === promoDeal.category)?.image;
+          return (
+            <button
+              onClick={() => setOpenDeal(promoDeal)}
+              className="w-full text-left mb-4 rounded-2xl overflow-hidden active:scale-[0.98] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] bg-stone-900"
+            >
+              <div key={promoDeal.id} className="animate-fade-in relative p-4 flex items-center gap-4 min-h-[110px]">
+                {/* Category illustration — right side, bright on dark */}
+                {promoCatImage && (
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 w-24 h-24 promo-float">
+                    <Image src={promoCatImage} alt="" width={96} height={96} className="object-contain w-full h-full brightness-125 drop-shadow-[0_4px_12px_rgba(255,255,255,0.15)]" />
+                  </div>
                 )}
-              </div>
 
-              {/* Deal info */}
-              <div className="flex items-end justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-[16px] font-bold text-white leading-snug mb-0.5 line-clamp-1">{promoDeal.name}</p>
-                  <p className="text-[12px] text-white/50 line-clamp-1">{promoDeal.offer}</p>
-                  {(promoDeal.location || promoDeal.emirate) && (
-                    <p className="text-[10px] text-white/30 mt-1 flex items-center gap-0.5">
-                      <MapPin className="w-2.5 h-2.5" />
-                      {[promoDeal.location, promoDeal.emirate].filter(Boolean).join(', ')}
-                    </p>
-                  )}
-                </div>
-                <div className="shrink-0 text-right">
-                  {promoDeal.price?.toLowerCase().includes('free') ? (
-                    <span className="text-[22px] font-black text-emerald-400 leading-none">FREE</span>
-                  ) : promoDeal.price ? (
-                    <span className="text-[22px] font-black text-white leading-none inline-flex items-center gap-0.5">
-                      <DirhamIcon className="w-4 h-4 opacity-50" />
-                      {promoDeal.price.replace(/[^0-9,]/g, '').trim()}
+                {/* Content */}
+                <div className="relative flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    {promoDeal.isExpiringSoon && (
+                      <Flame className="w-3 h-3 text-orange-400" />
+                    )}
+                    <span className="text-[11px] font-medium text-white/40">
+                      {promoDeal.emirate || promoDeal.location || 'UAE'}
                     </span>
-                  ) : null}
-                  <p className="text-[10px] text-white/30 mt-0.5">Tap to view</p>
+                  </div>
+                  <p className="text-[16px] font-bold text-white leading-snug mb-0.5 line-clamp-1 pr-16">{promoDeal.name}</p>
+                  <p className="text-[12px] text-white/40 line-clamp-1 pr-16">{promoDeal.offer}</p>
+                  <div className="mt-2.5 flex items-center gap-3">
+                    {promoDeal.price?.toLowerCase().includes('free') ? (
+                      <span className="text-[15px] font-black text-emerald-400">FREE</span>
+                    ) : promoDeal.price ? (
+                      <span className="text-[15px] font-bold text-white inline-flex items-center gap-0.5">
+                        <DirhamIcon className="w-3 h-3 opacity-50" />
+                        {promoDeal.price.replace(/[^0-9,]/g, '').trim()}
+                      </span>
+                    ) : null}
+                    {promoDeals.length > 1 && (
+                      <div className="flex gap-1">
+                        {promoDeals.map((_, i) => (
+                          <div
+                            key={i}
+                            className={`h-[3px] rounded-full transition-all duration-300 ${
+                              i === promoIndex ? 'w-4 bg-white/50' : 'w-[3px] bg-white/15'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              {/* Dots */}
-              {promoDeals.length > 1 && (
-                <div className="flex gap-1 justify-center mt-3">
-                  {promoDeals.map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-[3px] rounded-full transition-all duration-300 ${
-                        i === promoIndex ? 'w-5 bg-white/60' : 'w-[3px] bg-white/15'
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </button>
-        )}
+            </button>
+          );
+        })()}
 
         {/* Browse all + Credits */}
         <div className="flex items-center justify-between mb-1">

@@ -215,6 +215,15 @@
   }
 }
 
+/* Promo card illustration float */
+@keyframes promo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.promo-float {
+  animation: promo-float 3s ease-in-out infinite;
+}
+
 /* Smooth fade-in for spotlight card rotation */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }
