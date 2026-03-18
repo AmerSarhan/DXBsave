@@ -255,30 +255,36 @@ function EmailCapture() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 mb-1">
-      <div className="flex-1 relative">
-        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-300 pointer-events-none" />
-        <input
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          placeholder="Get weekly deals — enter your email"
-          required
-          className="w-full pl-9 pr-3 py-2.5 bg-white rounded-xl text-[16px] md:text-[13px] outline-none ring-1 ring-stone-100 placeholder:text-stone-300 text-stone-700 focus:ring-stone-300 transition-[box-shadow] duration-200"
-        />
-        {/* Honeypot */}
-        <input type="text" value={hp} onChange={e => setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute opacity-0 h-0 w-0 overflow-hidden pointer-events-none" />
+    <form onSubmit={handleSubmit} className="mb-1 rounded-2xl bg-white ring-1 ring-stone-100 p-4">
+      <div className="flex items-center gap-2 mb-1">
+        <Mail className="w-4 h-4 text-stone-900" />
+        <p className="text-[14px] font-bold text-stone-900">Never miss a deal</p>
       </div>
-      <button
-        type="submit"
-        disabled={status === 'loading'}
-        className="px-4 py-2.5 bg-stone-900 text-white rounded-xl text-[13px] font-semibold shrink-0 active:scale-95 transition-transform duration-100 disabled:opacity-50"
-      >
-        {status === 'loading'
-          ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
-          : <ArrowRight className="w-4 h-4" />
-        }
-      </button>
+      <p className="text-[12px] text-stone-400 mb-3">Best UAE deals in your inbox, once a week. No spam.</p>
+      <div className="flex gap-2">
+        <div className="flex-1 relative">
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="Your email"
+            required
+            className="w-full px-3 py-2.5 bg-stone-50 rounded-xl text-[16px] md:text-[13px] outline-none ring-1 ring-stone-100 placeholder:text-stone-300 text-stone-700 focus:ring-stone-300 transition-[box-shadow] duration-200"
+          />
+          {/* Honeypot */}
+          <input type="text" value={hp} onChange={e => setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute opacity-0 h-0 w-0 overflow-hidden pointer-events-none" />
+        </div>
+        <button
+          type="submit"
+          disabled={status === 'loading'}
+          className="px-5 py-2.5 bg-stone-900 text-white rounded-xl text-[13px] font-semibold shrink-0 active:scale-95 transition-transform duration-100 disabled:opacity-50"
+        >
+          {status === 'loading'
+            ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+            : 'Subscribe'
+          }
+        </button>
+      </div>
     </form>
   );
 }
