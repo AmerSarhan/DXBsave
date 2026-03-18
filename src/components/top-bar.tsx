@@ -2,13 +2,15 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Heart, Tag } from 'lucide-react';
+import { Heart, Tag, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useDeals } from '@/contexts/deals-context';
+import { FeedbackModal } from './feedback-modal';
 
 export function TopBar() {
   const [scrolled, setScrolled] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { favoriteDeals } = useDeals();
   const ticking = useRef(false);
 
@@ -81,10 +83,17 @@ export function TopBar() {
           </div>
         </Link>
 
-        <div className="hidden md:flex items-center gap-0.5">
+        <div className="flex items-center gap-0.5">
+          <button
+            onClick={() => setFeedbackOpen(true)}
+            className="p-2.5 rounded-xl hover:bg-stone-100/80 transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-95"
+            aria-label="Get in touch"
+          >
+            <MessageCircle className="w-[18px] h-[18px] text-stone-500" />
+          </button>
           <Link
             href="/favorites"
-            className="relative p-2.5 rounded-xl hover:bg-stone-100/80 transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-95"
+            className="relative p-2.5 rounded-xl hover:bg-stone-100/80 transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-95 hidden md:flex"
             aria-label="View favorites"
           >
             <Heart className="w-[18px] h-[18px] text-stone-500" />
@@ -100,6 +109,7 @@ export function TopBar() {
             )}
           </Link>
         </div>
+        <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
       </div>
     </header>
   );

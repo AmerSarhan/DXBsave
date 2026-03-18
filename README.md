@@ -1,6 +1,6 @@
 # DXBSave
 
-Mobile-first deals platform for the UAE. Browse 286+ verified offers across hotels, dining, attractions, delivery, spa, shopping, and Eid specials. Data pulls live from a Google Sheet, no backend needed.
+Mobile-first deals platform for the UAE. Browse 330+ verified offers across hotels, dining, attractions, delivery, spa, shopping, and Eid specials. Data pulls live from a Google Sheet, no backend needed.
 
 **[dxbsave.com](https://dxbsave.com)**
 
@@ -22,6 +22,7 @@ The API route fetches CSV server-side (avoids CORS), parses it, and returns type
 - Sort by price or expiring soon
 - Paginated feed (24 at a time, no scroll jank)
 - Trending badges powered by Upstash Redis
+- Residents-only badge on hotel deals requiring Emirates ID / GCC ID
 
 **Search**
 - Full-text search across all fields (venue, offer, location)
@@ -30,11 +31,12 @@ The API route fetches CSV server-side (avoids CORS), parses it, and returns type
 - Results grouped by category with tappable cards
 
 **Deal Details**
-- Slide-up panel on mobile, right panel on desktop
+- Slide-up panel on mobile, centered panel on desktop
 - Smart price display with Dirham symbol (handles FREE, ranges, "from" prices)
 - Book Now / Call to Book actions
 - WhatsApp share with pre-formatted message
 - Related deals from same category + emirate
+- Residents-only eligibility details (Emirates ID, GCC ID, etc.)
 
 **AI Deal Finder**
 - Natural language search ("hotels under 300", "free things in Dubai")
@@ -43,6 +45,19 @@ The API route fetches CSV server-side (avoids CORS), parses it, and returns type
 - Returns tappable deal cards, not text walls
 - Contextual loading messages ("Haggling at the Gold Souk...")
 - Full-screen on mobile, floating panel on desktop
+
+**Daily Deal Scout**
+- Automated cron job runs daily at 5 AM
+- Scrapes 4 UAE deal sources (What's On, Groupon, Visit Dubai, The National)
+- AI-powered deal extraction with structured parsing
+- Fuzzy deduplication against all existing tabs (60% word overlap)
+- New deals written to "For Review" sheet tab for manual approval
+
+**Contact & Feedback**
+- Bottom sheet on mobile, centered dialog on desktop
+- Submit a deal, report an issue, or send feedback
+- Email delivery via Resend
+- Spam protection: honeypot field, time gate, rate limiting
 
 **Favorites**
 - Tap heart to save, stored in localStorage
@@ -73,8 +88,9 @@ The API route fetches CSV server-side (avoids CORS), parses it, and returns type
 | CSV Parsing | PapaParse |
 | State | React Context + useReducer |
 | AI | OpenRouter (Gemini 3 Flash, tool calling) |
+| Email | Resend |
 | Trending | Upstash Redis (sorted sets + HyperLogLog) |
-| Analytics | Google Analytics 4 |
+| Analytics | Vercel Analytics + Google Analytics 4 |
 | Hosting | Vercel |
 
 ## Project Structure
@@ -86,6 +102,8 @@ src/
       sheets/[gid]/route.ts     Server-side CSV proxy, rate limited
       ask/route.ts               AI assistant with tool calling
       trending/route.ts          Redis tap tracking + trending
+      contact/route.ts           Feedback form, Resend email, spam protection
+      cron/scout/route.ts        Daily deal scraper + AI parser
     deals/page.tsx               Server-rendered SEO page
     deal/[slug]/page.tsx         Deep link to specific deal
     favorites/page.tsx           Saved deals
@@ -95,14 +113,15 @@ src/
     page.tsx                     Homepage
 
   components/
-    top-bar.tsx                  Sticky nav, animated logo, search + favorites
+    top-bar.tsx                  Sticky nav, animated logo, feedback + favorites
     hero.tsx                     Headline, rotating spotlight cards, credits
     category-bar.tsx             Categories + emirates + sort (single sticky row)
     deal-card.tsx                Horizontal card with icon strip, price display
     deal-feed.tsx                Paginated grid with shimmer loading
-    deal-detail.tsx              Slide-up (mobile) / right panel (desktop)
+    deal-detail.tsx              Slide-up (mobile) / centered panel (desktop)
     search-overlay.tsx           Full-screen search with trending + quick chips
     ask-widget.tsx               AI chat with deal cards, suggestions, follow-ups
+    feedback-modal.tsx           Contact form, portal-rendered, spam protected
     back-to-top.tsx              Scroll button (bottom-left)
     dirham-icon.tsx              UAE Dirham currency symbol (SVG)
 
@@ -134,14 +153,18 @@ Open [localhost:3000](http://localhost:3000).
 
 ## Environment Variables
 
-All optional. The app works without any of them (AI and trending just get disabled).
+All optional. The app works without any of them (AI, trending, email, and scout just get disabled).
 
 | Variable | What it does | Where it runs |
 |---|---|---|
 | `NEXT_PUBLIC_SITE_URL` | OG meta base URL | Client |
-| `OPENROUTER_API_KEY` | AI deal finder | Server only |
+| `OPENROUTER_API_KEY` | AI deal finder + deal scout | Server only |
 | `UPSTASH_REDIS_REST_URL` | Trending + tap counts | Server only |
 | `UPSTASH_REDIS_REST_TOKEN` | Redis auth | Server only |
+| `RESEND_API_KEY` | Contact form email delivery | Server only |
+| `GOOGLE_SHEET_ID` | Deal scout writes to review tab | Server only |
+| `GOOGLE_SERVICE_ACCOUNT_KEY` | Google Sheets API auth (base64) | Server only |
+| `CRON_SECRET` | Vercel cron job auth | Server only |
 
 None of the server-side keys use `NEXT_PUBLIC_` prefix. They never appear in the client bundle.
 
@@ -150,6 +173,8 @@ None of the server-side keys use `NEXT_PUBLIC_` prefix. They never appear in the
 - All API keys are server-side only, never in git, never in client JS
 - `/api/sheets` rate limited at 30 req/min per IP
 - `/api/ask` rate limited at 10 req/min per IP
+- `/api/contact` rate limited at 3 req/hr per IP + honeypot + time gate
+- HTML scraping uses stateful parser (not regex) to avoid CodeQL-flagged bypass vectors
 - `bookVia` URLs validated as https:// or phone number format
 - AI input capped at 500 chars, output at 600 tokens
 - Google Sheets URL only exists in the server-side route file
