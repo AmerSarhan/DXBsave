@@ -11,14 +11,14 @@ import {
 import { CategoryKey } from './types';
 
 export const SHEET_GIDS: Record<CategoryKey | 'tips', string> = {
-  hotels: '121077454',
-  dining: '1938135534',
-  attractions: '595734893',
-  delivery: '195924846',
-  spa: '264158510',
-  shopping: '2136278522',
-  eid: '1267508469',
-  tips: '748122700',
+  hotels: '526988461',
+  dining: '345322245',
+  attractions: '344841705',
+  delivery: '1498335291',
+  spa: '1830962395',
+  shopping: '1261015132',
+  eid: '1434967925',
+  tips: '989420297',
 };
 
 export interface CategoryConfig {

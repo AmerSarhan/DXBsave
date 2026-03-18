@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.google.com)",
+      "Bash(npx vercel:*)",
+      "Bash(printf 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSjFnFNtzyLcXNSL0q5kd6_fUbHm1yZSWUvQ6osr7vLHNMYDKmLX-XnX6YsGQ0ZCy_89KDq_Cwv1zfr/pub?output=csv&gid=')"
+    ]
+  }
+}

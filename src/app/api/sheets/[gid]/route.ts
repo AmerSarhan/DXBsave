@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 const SHEET_BASE_URL = process.env.SHEET_CSV_BASE_URL || '';
 
 const VALID_GIDS = new Set([
-  '121077454', '1938135534', '595734893', '195924846',
-  '264158510', '2136278522', '1267508469', '748122700',
+  '526988461', '345322245', '344841705', '1498335291',
+  '1830962395', '1261015132', '1434967925', '989420297',
 ]);
 
 // Simple in-memory rate limiter: 30 requests per minute per IP
