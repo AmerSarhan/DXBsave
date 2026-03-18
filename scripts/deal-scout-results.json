@@ -1,0 +1,172 @@
+{
+  "scrapedAt": "2026-03-18T06:03:20.790Z",
+  "sourcesScraped": 4,
+  "totalExtracted": 15,
+  "newDeals": [
+    {
+      "name": "Masti",
+      "emirate": "Dubai",
+      "location": "La Mer",
+      "category": "dining",
+      "offer": "Free-flowing house beverages for minimum spend of Dhs100 and 15 per cent off on a la carte menu (Tuesdays, 8pm-12am)",
+      "price": "Varies",
+      "validUntil": "Ongoing",
+      "source": "What's On",
+      "sourceUrl": "https://whatson.ae/deals/"
+    },
+    {
+      "name": "Aprons & Hammers",
+      "emirate": "Dubai",
+      "location": "La Mer",
+      "category": "dining",
+      "offer": "Happy Hour: Buy one get one free on house beverages and 20% off total bill (4pm-7pm); Two free glasses of house spirits with small bucket purchase (7pm onwards)",
+      "price": "Varies",
+      "validUntil": "Ongoing",
+      "source": "What's On",
+      "sourceUrl": "https://whatson.ae/deals/"
+    },
+    {
+      "name": "Sugar Factory",
+      "emirate": "Dubai",
+      "location": "La Mer",
+      "category": "dining",
+      "offer": "Two-course set menu with free-flowing house beverages",
+      "price": "AED 100",
+      "validUntil": "Ongoing",
+      "source": "What's On",
+      "sourceUrl": "https://whatson.ae/deals/"
+    },
+    {
+      "name": "Sugar Factory",
+      "emirate": "Dubai",
+      "location": "La Mer",
+      "category": "dining",
+      "offer": "Three-course set menu with free-flowing house beverages",
+      "price": "AED 150",
+      "validUntil": "Ongoing",
+      "source": "What's On",
+      "sourceUrl": "https://whatson.ae/deals/"
+    },
+    {
+      "name": "Laguna Waterpark",
+      "emirate": "Dubai",
+      "location": "La Mer",
+      "category": "attractions",
+      "offer": "Buy tickets and get three complimentary drinks",
+      "price": "AED 99",
+      "validUntil": "Ongoing",
+      "source": "What's On",
+      "sourceUrl": "https://whatson.ae/deals/"
+    },
+    {
+      "name": "Amorino",
+      "emirate": "Dubai",
+      "location": "La Mer",
+      "category": "dining",
+      "offer": "Discount on Macarons",
+      "price": "25% OFF",
+      "validUntil": "Ongoing",
+      "source": "What's On",
+      "sourceUrl": "https://whatson.ae/deals/"
+    },
+    {
+      "name": "El Greco",
+      "emirate": "Dubai",
+      "location": "La Mer",
+      "category": "dining",
+      "offer": "Discount on all menu items",
+      "price": "25% OFF",
+      "validUntil": "Ongoing",
+      "source": "What's On",
+      "sourceUrl": "https://whatson.ae/deals/"
+    },
+    {
+      "name": "Sofia's Kitchen",
+      "emirate": "Dubai",
+      "location": "Grand Millennium Business Bay",
+      "category": "dining",
+      "offer": "Ramadan Iftar Buffet w/ Beverages for 1 Adult",
+      "price": "AED 49",
+      "validUntil": "Ongoing",
+      "source": "Groupon UAE",
+      "sourceUrl": "https://www.groupon.ae/deals/dubai"
+    },
+    {
+      "name": "Sport Society",
+      "emirate": "Dubai",
+      "location": "Mirdif",
+      "category": "attractions",
+      "offer": "Two-Hour Ice Skating Session",
+      "price": "AED 65",
+      "validUntil": "Ongoing",
+      "source": "Groupon UAE",
+      "sourceUrl": "https://www.groupon.ae/deals/dubai"
+    },
+    {
+      "name": "Adventureland Sharjah",
+      "emirate": "Sharjah",
+      "location": "Sahara Centre",
+      "category": "attractions",
+      "offer": "Full Day Pass (Kids Canopy, Jungle Kids, Limitless Rides)",
+      "price": "AED 32",
+      "validUntil": "Ongoing",
+      "source": "Groupon UAE",
+      "sourceUrl": "https://www.groupon.ae/deals/dubai"
+    },
+    {
+      "name": "Derwandi",
+      "emirate": "Dubai",
+      "location": "Jumeirah 2",
+      "category": "dining",
+      "offer": "Authentic Lebanese Iftar Set Menu",
+      "price": "AED 55.20",
+      "validUntil": "Ongoing",
+      "source": "Groupon UAE",
+      "sourceUrl": "https://www.groupon.ae/deals/dubai"
+    },
+    {
+      "name": "Oceana at 5* Hilton Jumeirah Hotel",
+      "emirate": "Dubai",
+      "location": "JBR",
+      "category": "dining",
+      "offer": "Ramadan Iftar Buffet with Beverages",
+      "price": "AED 65",
+      "validUntil": "Ongoing",
+      "source": "Groupon UAE",
+      "sourceUrl": "https://www.groupon.ae/deals/dubai"
+    },
+    {
+      "name": "Al Bahou at 5* Oaks Ibn Battuta",
+      "emirate": "Dubai",
+      "location": "Ibn Battuta",
+      "category": "dining",
+      "offer": "Grand Iftar Buffet + Ramadan Drinks",
+      "price": "AED 69",
+      "validUntil": "Ongoing",
+      "source": "Groupon UAE",
+      "sourceUrl": "https://www.groupon.ae/deals/dubai"
+    },
+    {
+      "name": "Vyne @ 4* First Collection Hotel",
+      "emirate": "Dubai",
+      "location": "Business Bay",
+      "category": "dining",
+      "offer": "Ramadan Buffet with Drinks",
+      "price": "AED 49",
+      "validUntil": "Ongoing",
+      "source": "Groupon UAE",
+      "sourceUrl": "https://www.groupon.ae/deals/dubai"
+    },
+    {
+      "name": "Monarch Coffee Shop",
+      "emirate": "Dubai",
+      "location": "Elite Byblos Hotel Al Barsha",
+      "category": "dining",
+      "offer": "Premium Iftar Buffet with Bottomless Ramadan Beverages",
+      "price": "AED 31.20",
+      "validUntil": "Ongoing",
+      "source": "Groupon UAE",
+      "sourceUrl": "https://www.groupon.ae/deals/dubai"
+    }
+  ]
+}
