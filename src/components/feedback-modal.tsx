@@ -143,7 +143,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                       placeholder={placeholder}
                       rows={4}
                       required
-                      className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-[14px] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300 resize-none"
+                      className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-[16px] md:text-[14px] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300 resize-none"
                     />
 
                     {/* Email */}
@@ -152,7 +152,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder="Your email (optional, for reply)"
-                      className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-[14px] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                      className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-[16px] md:text-[14px] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
                     />
 
                     {/* Honeypot — invisible to humans, bots auto-fill it */}
