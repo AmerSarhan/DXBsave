@@ -218,8 +218,46 @@ export function DealFeed() {
 }
 
 function Footer() {
+  const categories = [
+    { key: 'hotels', label: 'Hotels' },
+    { key: 'dining', label: 'Dining' },
+    { key: 'attractions', label: 'Attractions' },
+    { key: 'delivery', label: 'Delivery' },
+    { key: 'spa', label: 'Spa & Wellness' },
+    { key: 'shopping', label: 'Shopping' },
+    { key: 'eid', label: 'Eid Specials' },
+  ];
+  const emirates = [
+    { slug: 'dubai', label: 'Dubai' },
+    { slug: 'abu-dhabi', label: 'Abu Dhabi' },
+    { slug: 'sharjah', label: 'Sharjah' },
+    { slug: 'ajman', label: 'Ajman' },
+    { slug: 'ras-al-khaimah', label: 'Ras Al Khaimah' },
+    { slug: 'fujairah', label: 'Fujairah' },
+    { slug: 'umm-al-quwain', label: 'Umm Al Quwain' },
+  ];
+
   return (
     <footer className="mt-12 mb-8 pt-6 border-t border-stone-100">
+      <div className="grid grid-cols-2 gap-6 mb-8 px-1">
+        <div>
+          <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2">Categories</p>
+          <div className="flex flex-col gap-1">
+            {categories.map(c => (
+              <a key={c.key} href={`/deals/${c.key}`} className="text-[12px] text-stone-400 hover:text-stone-700 transition-colors">{c.label}</a>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2">Emirates</p>
+          <div className="flex flex-col gap-1">
+            {emirates.map(e => (
+              <a key={e.slug} href={`/deals/${e.slug}`} className="text-[12px] text-stone-400 hover:text-stone-700 transition-colors">{e.label}</a>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="text-center space-y-2">
         <p className="text-[13px] font-semibold text-stone-400">DXBSave</p>
         <p className="text-[11px] text-stone-300 leading-relaxed">

@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import Papa from 'papaparse';
-import { SHEET_GIDS } from '@/lib/constants';
+import { SHEET_GIDS, CATEGORIES, EMIRATES } from '@/lib/constants';
 import { slugify } from '@/lib/utils';
 
 const SHEET_BASE_URL = process.env.SHEET_CSV_BASE_URL || '';
@@ -28,6 +28,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.9,
     },
+    // Category pages
+    ...CATEGORIES.map(c => ({
+      url: `https://dxbsave.com/deals/${c.key}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    })),
+    // Emirate pages
+    ...EMIRATES.filter(e => e !== 'All').map(e => ({
+      url: `https://dxbsave.com/deals/${slugify(e)}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    })),
   ];
 
   // Fetch deal slugs for dynamic pages
