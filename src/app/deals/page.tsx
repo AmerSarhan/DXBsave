@@ -4,8 +4,8 @@ import Papa from 'papaparse';
 import { SHEET_GIDS } from '@/lib/constants';
 
 export const metadata: Metadata = {
-  title: 'All Deals',
-  description: 'Browse 286+ verified deals across the UAE — hotels, dining, attractions, delivery codes, spa, shopping, and Eid specials.',
+  title: 'All UAE Deals & Offers March 2026 | DXBSave',
+  description: '330+ verified UAE deals — hotel day passes from AED 100, happy hours from AED 17, free attractions, spa BOGO, delivery promo codes, and Eid specials. Updated daily.',
 };
 
 const SHEET_BASE_URL = process.env.SHEET_CSV_BASE_URL || '';

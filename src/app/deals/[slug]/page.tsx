@@ -77,25 +77,47 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const emirate = findEmirate(slug);
   const category = findCategory(slug);
 
+  const emirateDescriptions: Record<string, string> = {
+    'Dubai': 'Best Dubai deals March 2026 — hotel day passes from AED 100, happy hours from AED 17, free attractions, spa BOGO offers, and delivery promo codes.',
+    'Abu Dhabi': 'Abu Dhabi deals and offers — staycation packages, restaurant discounts, free museum entry, spa treatments, and Eid specials. Updated daily.',
+    'Sharjah': 'Sharjah deals and offers — affordable hotels, dining discounts, family attractions, and shopping sales. Verified and updated daily.',
+    'Ajman': 'Ajman deals — beach resorts, dining offers, and local attractions at the best prices in the UAE.',
+    'Ras Al Khaimah': 'Ras Al Khaimah deals — adventure activities, mountain resorts, spa getaways, and dining offers. Updated daily.',
+    'Fujairah': 'Fujairah deals — beach hotels, diving experiences, mountain escapes, and dining offers on the east coast.',
+    'Umm Al Quwain': 'Umm Al Quwain deals — affordable staycations, water parks, and family-friendly offers.',
+  };
+
+  const categoryDescriptions: Record<string, string> = {
+    'hotels': 'UAE hotel deals March 2026 — day passes from AED 100, staycations with up to 25% off, Eid packages, and resident-only rates across Dubai, Abu Dhabi, and more.',
+    'dining': 'UAE restaurant deals — happy hours from AED 17, ladies nights, brunches from AED 150, iftars, and Eid dining specials across Dubai and Abu Dhabi.',
+    'attractions': 'UAE attractions deals — FREE entry offers, theme park discounts, concert tickets, and family activities across Dubai, Abu Dhabi, and Sharjah.',
+    'delivery': 'UAE delivery promo codes March 2026 — Deliveroo, Talabat, Careem, and Noon Food discounts. Verified and working codes updated daily.',
+    'spa': 'UAE spa and wellness deals — BOGO treatments, hammam packages, fitness memberships, and ladies day specials at top hotel spas.',
+    'shopping': 'UAE shopping sales 2026 — Eid sales up to 80% off, seasonal events, mall promotions, and outlet deals across Dubai and Abu Dhabi.',
+    'eid': 'Eid Al Fitr 2026 deals UAE — free attractions, special brunches, hotel packages, and family offers across Dubai, Abu Dhabi, and Sharjah.',
+  };
+
   if (emirate) {
+    const desc = emirateDescriptions[emirate] || `Best deals and offers in ${emirate}, UAE — hotels, dining, attractions, spa, and more. Updated daily.`;
     return {
-      title: `${emirate} Deals & Offers | DXBSave`,
-      description: `Browse verified deals in ${emirate} — hotels, dining, attractions, spa, shopping, and more. Updated daily.`,
+      title: `${emirate} Deals & Offers March 2026 | DXBSave`,
+      description: desc,
       openGraph: {
         title: `${emirate} Deals & Offers`,
-        description: `The best deals and offers in ${emirate}, UAE. Hotels, restaurants, attractions, and more.`,
+        description: desc,
         url: `https://dxbsave.com/deals/${slug}`,
       },
     };
   }
 
   if (category) {
+    const desc = categoryDescriptions[category.key] || `Best ${category.label.toLowerCase()} deals across the UAE. Updated daily.`;
     return {
-      title: `${category.label} Deals UAE | DXBSave`,
-      description: `Browse verified ${category.label.toLowerCase()} deals across the UAE — Dubai, Abu Dhabi, Sharjah, and more. Updated daily.`,
+      title: `${category.label} Deals UAE March 2026 | DXBSave`,
+      description: desc,
       openGraph: {
         title: `${category.label} Deals UAE`,
-        description: `The best ${category.label.toLowerCase()} deals across the UAE. Updated daily.`,
+        description: desc,
         url: `https://dxbsave.com/deals/${slug}`,
       },
     };
