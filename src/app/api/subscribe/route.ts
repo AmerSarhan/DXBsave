@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     // Honeypot
     if (hp) return NextResponse.json({ success: true });
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email || typeof email !== 'string' || email.length > 254 || !email.includes('@') || !email.split('@')[1]?.includes('.')) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
 
