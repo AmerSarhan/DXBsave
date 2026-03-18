@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Search, Flame, MapPin } from 'lucide-react';
+import { Search, Flame, MapPin, Mail, Check, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDeals } from '@/contexts/deals-context';
 import { CategoryKey, AnyDeal } from '@/lib/types';
@@ -204,7 +204,7 @@ export function Hero() {
         })()}
 
         {/* Browse all + Credits */}
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center justify-between mb-3">
           <p className="text-[10px] text-stone-300">
             Curated by <span className="text-stone-400 font-medium">Dom</span> from <span className="text-stone-400 font-medium">Adtech Chat MENA</span>
           </p>
@@ -212,6 +212,9 @@ export function Hero() {
             Browse all deals
           </a>
         </div>
+
+        {/* Email capture */}
+        <EmailCapture />
       </div>
 
       {openDeal && typeof document !== 'undefined' && createPortal(
@@ -219,5 +222,63 @@ export function Hero() {
         document.body
       )}
     </section>
+  );
+}
+
+function EmailCapture() {
+  const [email, setEmail] = useState('');
+  const [hp, setHp] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || status === 'loading') return;
+    setStatus('loading');
+    try {
+      await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, hp }),
+      });
+    } finally {
+      setStatus('done');
+    }
+  };
+
+  if (status === 'done') {
+    return (
+      <div className="flex items-center justify-center gap-2 py-2.5 mb-1">
+        <Check className="w-3.5 h-3.5 text-emerald-500" />
+        <span className="text-[12px] text-stone-500">You&apos;re in! We&apos;ll send you the best deals weekly.</span>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2 mb-1">
+      <div className="flex-1 relative">
+        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-300 pointer-events-none" />
+        <input
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          placeholder="Get weekly deals — enter your email"
+          required
+          className="w-full pl-9 pr-3 py-2.5 bg-white rounded-xl text-[16px] md:text-[13px] outline-none ring-1 ring-stone-100 placeholder:text-stone-300 text-stone-700 focus:ring-stone-300 transition-[box-shadow] duration-200"
+        />
+        {/* Honeypot */}
+        <input type="text" value={hp} onChange={e => setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute opacity-0 h-0 w-0 overflow-hidden pointer-events-none" />
+      </div>
+      <button
+        type="submit"
+        disabled={status === 'loading'}
+        className="px-4 py-2.5 bg-stone-900 text-white rounded-xl text-[13px] font-semibold shrink-0 active:scale-95 transition-transform duration-100 disabled:opacity-50"
+      >
+        {status === 'loading'
+          ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+          : <ArrowRight className="w-4 h-4" />
+        }
+      </button>
+    </form>
   );
 }
