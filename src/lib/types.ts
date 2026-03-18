@@ -22,6 +22,7 @@ export interface HotelDeal extends BaseDeal {
   discount: string;
   inclusions: string;
   residentOnly: boolean;
+  residentRequirement: string;
   bookVia: string;
 }
 

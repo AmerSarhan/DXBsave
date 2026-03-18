@@ -62,7 +62,7 @@ export function DealDetail({ deal, open, onClose, onChangeDeal }: DealDetailProp
     if (h.tier) details.push({ label: 'Type', value: h.tier });
     if (h.inclusions) details.push({ label: 'Inclusions', value: h.inclusions });
     if (h.discount && h.discount !== '-') details.push({ label: 'Discount', value: h.discount });
-    if (h.residentOnly) details.push({ label: 'Note', value: 'UAE Residents Only' });
+    if (h.residentOnly && h.residentRequirement) details.push({ label: 'Eligibility', value: h.residentRequirement });
     if (h.bookVia) details.push({ label: 'Book Via', value: h.bookVia });
   } else if (deal.category === 'dining') {
     const d = deal as DiningDeal;
@@ -141,6 +141,11 @@ export function DealDetail({ deal, open, onClose, onChangeDeal }: DealDetailProp
                     <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-semibold bg-white/60 text-red-600">
                       <Flame className="w-2.5 h-2.5" />
                       Ending soon
+                    </span>
+                  )}
+                  {'residentOnly' in deal && (deal as HotelDeal).residentOnly && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-semibold bg-white/60 text-green-700">
+                      🇦🇪 UAE Residents Only
                     </span>
                   )}
                 </div>

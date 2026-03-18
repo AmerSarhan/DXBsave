@@ -5,7 +5,7 @@ import { Heart, Share2, MapPin, Copy, Check, Flame, TrendingUp, Eye } from 'luci
 import { cn } from '@/lib/utils';
 import { useDeals } from '@/contexts/deals-context';
 import { CATEGORIES } from '@/lib/constants';
-import { AnyDeal, DeliveryDeal } from '@/lib/types';
+import { AnyDeal, DeliveryDeal, HotelDeal } from '@/lib/types';
 import { DealDetail } from './deal-detail';
 import { DirhamIcon } from './dirham-icon';
 import { toast } from 'sonner';
@@ -178,6 +178,9 @@ export function DealCard({ deal, compact, onDetailOpen }: DealCardProps) {
               )}
               {'isNew' in deal && deal.isNew && (
                 <span className="text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-lg">New</span>
+              )}
+              {deal.category === 'hotels' && (deal as HotelDeal).residentOnly && (
+                <span className="text-[9px] font-bold text-green-700 bg-green-50 px-1.5 py-0.5 rounded-lg">🇦🇪 Residents</span>
               )}
             </div>
           </div>
