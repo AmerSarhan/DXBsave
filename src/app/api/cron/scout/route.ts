@@ -23,6 +23,35 @@ function getAuth() {
   });
 }
 
+// Extract plain text from HTML without using regex on HTML structure
+function htmlToText(html: string): string {
+  let result = '';
+  let i = 0;
+  const len = html.length;
+  while (i < len) {
+    if (html[i] === '<') {
+      const sliceLower = html.slice(i, i + 7).toLowerCase();
+      if (sliceLower.startsWith('<script')) {
+        const endIdx = html.toLowerCase().indexOf('</script>', i);
+        i = endIdx !== -1 ? endIdx + 9 : len;
+        continue;
+      }
+      if (sliceLower.startsWith('<style')) {
+        const endIdx = html.toLowerCase().indexOf('</style>', i);
+        i = endIdx !== -1 ? endIdx + 8 : len;
+        continue;
+      }
+      const endTag = html.indexOf('>', i);
+      i = endTag !== -1 ? endTag + 1 : len;
+      result += ' ';
+    } else {
+      result += html[i];
+      i++;
+    }
+  }
+  return result.replace(/\s+/g, ' ').trim();
+}
+
 // Scrape a source URL
 async function scrape(source: { name: string; url: string }): Promise<string | null> {
   try {
@@ -35,13 +64,7 @@ async function scrape(source: { name: string; url: string }): Promise<string | n
     });
     if (!res.ok) return null;
     const html = await res.text();
-    return html
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .substring(0, 15000);
+    return htmlToText(html).substring(0, 15000);
   } catch {
     return null;
   }

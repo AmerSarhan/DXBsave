@@ -32,6 +32,35 @@ const SOURCES = [
   },
 ];
 
+// Extract plain text from HTML without using regex on HTML structure
+function htmlToText(html) {
+  let result = '';
+  let i = 0;
+  const len = html.length;
+  while (i < len) {
+    if (html[i] === '<') {
+      const sliceLower = html.slice(i, i + 7).toLowerCase();
+      if (sliceLower.startsWith('<script')) {
+        const endIdx = html.toLowerCase().indexOf('</script>', i);
+        i = endIdx !== -1 ? endIdx + 9 : len;
+        continue;
+      }
+      if (sliceLower.startsWith('<style')) {
+        const endIdx = html.toLowerCase().indexOf('</style>', i);
+        i = endIdx !== -1 ? endIdx + 8 : len;
+        continue;
+      }
+      const endTag = html.indexOf('>', i);
+      i = endTag !== -1 ? endTag + 1 : len;
+      result += ' ';
+    } else {
+      result += html[i];
+      i++;
+    }
+  }
+  return result.replace(/\s+/g, ' ').trim();
+}
+
 // Step 1: Scrape sources
 async function scrapeSource(source) {
   console.log(`  Scraping: ${source.name}...`);
@@ -48,14 +77,7 @@ async function scrapeSource(source) {
       return null;
     }
     const html = await res.text();
-    // Strip HTML tags, keep text content (rough but works)
-    const text = html
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .substring(0, 15000); // Cap at 15k chars for AI context
+    const text = htmlToText(html).substring(0, 15000); // Cap at 15k chars for AI context
     console.log(`    Got ${text.length} chars of text`);
     return { ...source, text };
   } catch (err) {
