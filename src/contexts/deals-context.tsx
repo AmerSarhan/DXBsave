@@ -4,6 +4,8 @@ import React, { createContext, useContext, useMemo, useCallback, useReducer } fr
 import { useSheetData } from '@/hooks/use-sheet-data';
 import { useFavorites } from '@/hooks/use-favorites';
 import { useTrending } from '@/hooks/use-trending';
+import { useFeedMemory } from '@/hooks/use-feed-memory';
+import type { FeedMemory, TrendingData } from '@/lib/feed-algorithm';
 import {
   AnyDeal,
   SheetData,
@@ -80,6 +82,14 @@ interface DealsContextValue {
   recordTap: (dealId: string) => void;
   getTaps: (dealId: string) => number;
   isTrending: (dealId: string) => boolean;
+  trendingData: TrendingData;
+
+  // Feed memory (for algorithm)
+  favoriteIds: Set<string>;
+  feedMemory: FeedMemory;
+  markDealsAsSeen: (ids: string[]) => void;
+  recordCategoryTap: (category: string) => void;
+  saveSectionOrder: (order: import('@/lib/types').CategoryKey[]) => void;
 }
 
 const DealsContext = createContext<DealsContextValue | null>(null);
@@ -87,7 +97,8 @@ const DealsContext = createContext<DealsContextValue | null>(null);
 export function DealsProvider({ children }: { children: React.ReactNode }) {
   const { data, loading, error, isStale, refresh, retry } = useSheetData();
   const { toggleFavorite, isFavorite, favorites } = useFavorites();
-  const { recordTap, getTaps, isTrending } = useTrending();
+  const { trending: trendingData, recordTap, getTaps, isTrending } = useTrending();
+  const { memory: feedMemory, markDealsAsSeen, recordCategoryTap, saveSectionOrder } = useFeedMemory();
 
   const [state, dispatch] = useReducer(reducer, {
     filters: { emirate: 'All', category: 'all', search: '', sort: 'default' },
@@ -198,6 +209,12 @@ export function DealsProvider({ children }: { children: React.ReactNode }) {
     recordTap,
     getTaps,
     isTrending,
+    trendingData,
+    favoriteIds: favorites,
+    feedMemory,
+    markDealsAsSeen,
+    recordCategoryTap,
+    saveSectionOrder,
   };
 
   return <DealsContext.Provider value={value}>{children}</DealsContext.Provider>;

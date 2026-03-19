@@ -1,13 +1,19 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { SearchX, Sparkles, Flame, Gift } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { SearchX, Sparkles, Flame, Gift, Clock, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { useDeals } from '@/contexts/deals-context';
 import { DealCard } from './deal-card';
 import { CATEGORIES } from '@/lib/constants';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 import { CategoryKey } from '@/lib/types';
+import {
+  scoreDeals,
+  rankSections,
+  selectHeroDeals,
+  DealWithScore,
+} from '@/lib/feed-algorithm';
 
 const PAGE_SIZE = 24;
 
@@ -30,40 +36,123 @@ const CATEGORY_IMAGES: Partial<Record<CategoryKey, string>> = {
 
 const INLINE_TIPS = [
   { icon: Sparkles, text: 'Pro tip: Pool day passes are cheapest on weekdays', bg: 'bg-amber-50', color: 'text-amber-700' },
-  { icon: Flame, text: 'Free attractions are ending soon — don\'t miss out', bg: 'bg-red-50', color: 'text-red-600' },
-  { icon: Gift, text: 'Delivery promo codes change weekly — check back often', bg: 'bg-emerald-50', color: 'text-emerald-700' },
+  { icon: Flame,    text: 'Free attractions ending soon — don\'t miss out', bg: 'bg-red-50', color: 'text-red-600' },
+  { icon: Gift,     text: 'Delivery promo codes change weekly — check back often', bg: 'bg-emerald-50', color: 'text-emerald-700' },
 ];
 
-export function DealFeed() {
-  const { filteredDeals, loading, error, retry, isStale, filters, clearFilters, setCategory } = useDeals();
-  const [visible, setVisible] = useState(PAGE_SIZE);
-  const [loadingText, setLoadingText] = useState(FEED_LOADING[0]);
+const HERO_REASON_LABEL: Record<NonNullable<DealWithScore['_heroReason']>, { icon: React.FC<{ className?: string }>, label: string, cls: string }> = {
+  expiring: { icon: Clock,     label: 'Expiring soon',  cls: 'text-rose-600 bg-rose-50 ring-rose-200' },
+  trending: { icon: Flame,     label: 'Trending',       cls: 'text-orange-600 bg-orange-50 ring-orange-200' },
+  free:     { icon: Zap,       label: 'Free',           cls: 'text-emerald-700 bg-emerald-50 ring-emerald-200' },
+  top:      { icon: Sparkles,  label: 'Top pick',       cls: 'text-indigo-600 bg-indigo-50 ring-indigo-200' },
+};
 
-  useEffect(() => {
-    setLoadingText(FEED_LOADING[Math.floor(Math.random() * FEED_LOADING.length)]);
-  }, []);
+export function DealFeed() {
+  const {
+    filteredDeals, allDeals, loading, error, retry, isStale, filters, clearFilters, setCategory,
+    trendingData, favoriteIds, feedMemory, markDealsAsSeen, recordCategoryTap, saveSectionOrder,
+    recordTap,
+  } = useDeals();
+
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const [loadingText] = useState(() => FEED_LOADING[Math.floor(Math.random() * FEED_LOADING.length)]);
+  const seenRef = useRef<Set<string>>(new Set());
+
+  // Freeze feedMemory at session start — scoring must not re-run on every
+  // markDealsAsSeen/saveSectionOrder call (those cause infinite loops).
+  // Update ref once when the real localStorage snapshot arrives (sessionSeed > 0).
+  const stableFeedMemory = useRef(feedMemory);
+  if (feedMemory.sessionSeed && !stableFeedMemory.current.sessionSeed) {
+    stableFeedMemory.current = feedMemory;
+  }
 
   useEffect(() => { setVisible(PAGE_SIZE); }, [filters]);
 
-  const visibleDeals = useMemo(() => filteredDeals.slice(0, visible), [filteredDeals, visible]);
-  const hasMore = visible < filteredDeals.length;
-
-  // Group deals by category for section headers (only when showing "all")
   const isFiltered = filters.category !== 'all' || filters.search.trim() !== '' || filters.emirate !== 'All';
 
-  const sections = useMemo(() => {
-    if (isFiltered) return null;
+  // ── Algorithm: score all deals (stable for the whole session) ─────────────
+  const scoredDeals = useMemo(() => {
+    if (!allDeals.length || !stableFeedMemory.current.sessionSeed) return [];
+    return scoreDeals(allDeals, stableFeedMemory.current, trendingData, favoriteIds);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allDeals, trendingData, favoriteIds]);
 
-    const grouped: { key: CategoryKey; deals: typeof filteredDeals }[] = [];
-    const categories: CategoryKey[] = ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping', 'eid'];
+  // ── Ranked section order (only for unfiltered home view) ──────────────────
+  const rankedSectionOrder = useMemo(() => {
+    if (isFiltered || !stableFeedMemory.current.sessionSeed) return null;
+    return rankSections(stableFeedMemory.current, trendingData, favoriteIds);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFiltered, trendingData, favoriteIds]);
 
-    for (const cat of categories) {
-      const deals = filteredDeals.filter(d => d.category === cat);
-      if (deals.length > 0) grouped.push({ key: cat, deals });
+  // Save section order once (for next session's rotation penalty)
+  const savedOrderRef = useRef(false);
+  useEffect(() => {
+    if (!rankedSectionOrder || savedOrderRef.current) return;
+    savedOrderRef.current = true;
+    saveSectionOrder(rankedSectionOrder);
+  }, [rankedSectionOrder, saveSectionOrder]);
+
+  // ── Home sections: scored deals grouped by ranked category order ──────────
+  const homeSections = useMemo(() => {
+    if (!rankedSectionOrder || !scoredDeals.length) return null;
+
+    const scoredById = new Map(scoredDeals.map(d => [d.id, d as DealWithScore]));
+
+    return rankedSectionOrder
+      .map(cat => {
+        const deals = filteredDeals
+          .filter(d => d.category === cat)
+          .map(d => scoredById.get(d.id) ?? ({ ...d, _score: 0, _signals: { urgency: 0, trending: 0, value: 0, novelty: 0, timeRelevance: 0, affinity: 0, salt: 0 }, _heroReason: null } as DealWithScore))
+          .sort((a, b) => b._score - a._score);
+        return { key: cat, deals };
+      })
+      .filter(s => s.deals.length > 0);
+  }, [rankedSectionOrder, scoredDeals, filteredDeals]);
+
+  // ── Hero "Right Now" deals ─────────────────────────────────────────────────
+  const heroDeals = useMemo(() => {
+    if (isFiltered || !scoredDeals.length) return [];
+    return selectHeroDeals(scoredDeals, 5);
+  }, [isFiltered, scoredDeals]);
+
+  // ── Mark visible deals as seen (once per session per deal) ────────────────
+  useEffect(() => {
+    if (!homeSections) return;
+    const toMark: string[] = [];
+    for (const section of homeSections) {
+      for (const deal of section.deals.slice(0, 6)) {
+        if (!seenRef.current.has(deal.id)) {
+          seenRef.current.add(deal.id);
+          toMark.push(deal.id);
+        }
+      }
     }
-    return grouped;
-  }, [filteredDeals, isFiltered]);
+    if (heroDeals.length) {
+      for (const deal of heroDeals) {
+        if (!seenRef.current.has(deal.id)) {
+          seenRef.current.add(deal.id);
+          toMark.push(deal.id);
+        }
+      }
+    }
+    if (toMark.length) markDealsAsSeen(toMark);
+  }, [homeSections, heroDeals, markDealsAsSeen]);
 
+  // ── Flat filtered view ─────────────────────────────────────────────────────
+  const sortedFiltered = useMemo(() => {
+    if (!isFiltered || !scoredDeals.length) return filteredDeals;
+    const scoredById = new Map(scoredDeals.map(d => [d.id, d]));
+    return [...filteredDeals].sort((a, b) => {
+      const sa = scoredById.get(a.id)?._score ?? 0;
+      const sb = scoredById.get(b.id)?._score ?? 0;
+      return sb - sa;
+    });
+  }, [isFiltered, filteredDeals, scoredDeals]);
+
+  const visibleFiltered = useMemo(() => sortedFiltered.slice(0, visible), [sortedFiltered, visible]);
+  const hasMore = visible < sortedFiltered.length;
+
+  // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -115,9 +204,8 @@ export function DealFeed() {
     );
   }
 
-  // Sectioned view (default, no filters)
-  if (sections) {
-    let totalShown = 0;
+  // ── Sectioned home view ────────────────────────────────────────────────────
+  if (homeSections) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-4">
         {isStale && (
@@ -126,18 +214,51 @@ export function DealFeed() {
           </div>
         )}
 
-        {sections.map((section, sIdx) => {
+        {/* ── Right Now hero row ── */}
+        {heroDeals.length >= 2 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Flame className="w-4 h-4 text-rose-500" />
+              <h2 className="text-[14px] font-bold text-stone-800 uppercase tracking-wider">Right Now</h2>
+              <span className="text-[11px] text-stone-400">— expiring, trending & free</span>
+            </div>
+
+            {/* Horizontal scroll on mobile, grid on md+ */}
+            <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-none -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:lg:grid-cols-3 md:gap-3 md:overflow-visible">
+              {heroDeals.map(deal => {
+                const reason = deal._heroReason;
+                const badge = reason ? HERO_REASON_LABEL[reason] : null;
+                return (
+                  <div key={deal.id} className="snap-start shrink-0 w-[78vw] sm:w-[60vw] md:w-auto relative">
+                    {badge && (
+                      <div className={`absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full ring-1 text-[10px] font-semibold ${badge.cls}`}>
+                        <badge.icon className="w-2.5 h-2.5" />
+                        {badge.label}
+                      </div>
+                    )}
+                    <DealCard
+                      deal={deal}
+                      onDetailOpen={() => {
+                        recordTap(deal.id);
+                        recordCategoryTap(deal.category);
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── Algorithm-ranked category sections ── */}
+        {homeSections.map((section, sIdx) => {
           const config = CATEGORIES.find(c => c.key === section.key);
           const catImage = CATEGORY_IMAGES[section.key];
-          const showDeals = section.deals.slice(0, 8);
-          totalShown += showDeals.length;
-
-          // Inline tip after second section
+          const showDeals = section.deals.slice(0, 6);
           const tip = sIdx === 1 ? INLINE_TIPS[Math.floor(sIdx / 2) % INLINE_TIPS.length] : null;
 
           return (
             <div key={section.key}>
-              {/* Section header */}
               <div className="flex items-center gap-4 mt-8 mb-4 first:mt-2">
                 {catImage && (
                   <div className="w-14 h-14 shrink-0 rounded-2xl bg-white shadow-sm shadow-stone-200/40 p-1.5">
@@ -150,14 +271,20 @@ export function DealFeed() {
                 </div>
               </div>
 
-              {/* Deal grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {showDeals.map((deal) => (
-                  <DealCard key={deal.id} deal={deal} />
+                {showDeals.map(deal => (
+                  <DealCard
+                    key={deal.id}
+                    deal={deal}
+                    onDetailOpen={() => {
+                      recordTap(deal.id);
+                      recordCategoryTap(deal.category);
+                    }}
+                  />
                 ))}
               </div>
 
-              {section.deals.length > 8 && (
+              {section.deals.length > 6 && (
                 <button
                   onClick={() => setCategory(section.key)}
                   className="mt-2 mb-2 text-[12px] font-medium text-stone-500 hover:text-stone-700 transition-colors"
@@ -166,7 +293,6 @@ export function DealFeed() {
                 </button>
               )}
 
-              {/* Inline tip */}
               {tip && (
                 <div className={`mt-4 mb-2 flex items-center gap-2.5 px-4 py-3 rounded-xl ${tip.bg}`}>
                   <tip.icon className={`w-4 h-4 shrink-0 ${tip.color}`} />
@@ -182,7 +308,7 @@ export function DealFeed() {
     );
   }
 
-  // Flat grid view (when filtered)
+  // ── Flat filtered view ─────────────────────────────────────────────────────
   return (
     <div className="max-w-7xl mx-auto px-4 py-4">
       {isStale && (
@@ -196,8 +322,15 @@ export function DealFeed() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {visibleDeals.map((deal) => (
-          <DealCard key={deal.id} deal={deal} />
+        {visibleFiltered.map(deal => (
+          <DealCard
+            key={deal.id}
+            deal={deal}
+            onOpen={() => {
+              recordTap(deal.id);
+              recordCategoryTap(deal.category);
+            }}
+          />
         ))}
       </div>
 
@@ -207,7 +340,7 @@ export function DealFeed() {
             onClick={() => setVisible(v => v + PAGE_SIZE)}
             className="px-6 py-2.5 bg-white text-stone-600 rounded-xl text-sm font-medium shadow-sm shadow-stone-200/60 active:scale-[0.97] transition-transform duration-[160ms] touch-manipulation"
           >
-            Show more ({filteredDeals.length - visible} remaining)
+            Show more ({sortedFiltered.length - visible} remaining)
           </button>
         </div>
       )}

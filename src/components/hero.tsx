@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import Image from 'next/image';
-import { Search, Flame, MapPin, Mail, Check, ArrowRight } from 'lucide-react';
+import { Search, Flame, Clock, Zap, Sparkles, Mail, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDeals } from '@/contexts/deals-context';
-import { CategoryKey, AnyDeal } from '@/lib/types';
+import { AnyDeal, CategoryKey } from '@/lib/types';
 import { DirhamIcon } from './dirham-icon';
 import { DealDetail } from './deal-detail';
 import { createPortal } from 'react-dom';
+import { scoreDeals, selectHeroDeals, DealWithScore } from '@/lib/feed-algorithm';
 
 const CATEGORY_IMAGES: { key: CategoryKey; label: string; image: string }[] = [
   { key: 'hotels', label: 'Hotels', image: '/category/Hotels.png' },
@@ -20,32 +21,44 @@ const CATEGORY_IMAGES: { key: CategoryKey; label: string; image: string }[] = [
   { key: 'eid', label: 'Eid', image: '/category/Eid.png' },
 ];
 
+const HERO_BADGES = {
+  expiring: { icon: Clock,    label: 'Expiring soon', cls: 'bg-rose-500/20 text-rose-300 border-rose-400/30' },
+  trending: { icon: Flame,    label: 'Trending',      cls: 'bg-orange-500/20 text-orange-300 border-orange-400/30' },
+  free:     { icon: Zap,      label: 'Free',          cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30' },
+  top:      { icon: Sparkles, label: 'Top pick',      cls: 'bg-indigo-500/20 text-indigo-300 border-indigo-400/30' },
+} as const;
+
+const CATEGORY_IMAGES_MAP: Record<string, string> = {
+  hotels: '/category/Hotels.png',
+  dining: '/category/Dining.png',
+  attractions: '/category/Attractions.png',
+  delivery: '/category/Delivery.png',
+  spa: '/category/Spa.png',
+  shopping: '/category/shopping.png',
+  eid: '/category/Eid.png',
+};
+
 export function Hero() {
-  const { setCategory, getCategoryCount, setSearch, allDeals, filters } = useDeals();
+  const { setCategory, getCategoryCount, setSearch, allDeals, filters, trendingData, favoriteIds, feedMemory } = useDeals();
   const [promoIndex, setPromoIndex] = useState(0);
   const [openDeal, setOpenDeal] = useState<AnyDeal | null>(null);
 
-  // Pick one deal per category for variety
-  const promoDeals = (() => {
-    const seen = new Set<string>();
-    const picks = allDeals.filter(d => {
-      if (seen.has(d.category)) return false;
-      if (!d.price && !d.offer.toLowerCase().includes('free')) return false;
-      seen.add(d.category);
-      return true;
-    });
-    return picks.slice(0, 5);
-  })();
+  // Freeze memory at mount — same pattern as deal-feed to avoid re-scoring loops
+  const stableFeedMemory = useRef(feedMemory);
+  if (feedMemory.sessionSeed && !stableFeedMemory.current.sessionSeed) {
+    stableFeedMemory.current = feedMemory;
+  }
 
-  useEffect(() => {
-    if (promoDeals.length <= 1) return;
-    const interval = setInterval(() => {
-      setPromoIndex(prev => (prev + 1) % promoDeals.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [promoDeals.length]);
+  // Use the real algorithm to pick featured deals
+  const promoDeals = useMemo((): DealWithScore[] => {
+    if (!allDeals.length || !stableFeedMemory.current.sessionSeed) return [];
+    const scored = scoreDeals(allDeals, stableFeedMemory.current, trendingData, favoriteIds);
+    return selectHeroDeals(scored, 5);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allDeals, trendingData, favoriteIds]);
 
-  const promoDeal = promoDeals[promoIndex];
+  // No auto-rotate — user manually swipes dots
+  const promoDeal = promoDeals[promoIndex] ?? promoDeals[0];
 
   return (
     <section className="pt-16 pb-2 bg-gradient-to-b from-amber-50/40 via-stone-50 to-stone-50">
@@ -147,34 +160,55 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Featured deal */}
+        {/* Algorithm-picked featured deal */}
         {promoDeal && (() => {
-          const promoCatImage = CATEGORY_IMAGES.find(c => c.key === promoDeal.category)?.image;
+          const catImg = CATEGORY_IMAGES_MAP[promoDeal.category];
+          const badge = promoDeal._heroReason ? HERO_BADGES[promoDeal._heroReason] : null;
+          const daysLeft = promoDeal.expiresAt ? Math.ceil((promoDeal.expiresAt.getTime() - Date.now()) / 864e5) : null;
+          const taps = promoDeal._signals?.trending ?? 0;
+
           return (
             <button
               onClick={() => setOpenDeal(promoDeal)}
               className="w-full text-left mb-4 rounded-2xl overflow-hidden active:scale-[0.98] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] bg-stone-900"
             >
               <div key={promoDeal.id} className="animate-fade-in relative p-4 flex items-center gap-4 min-h-[110px]">
-                {/* Category illustration — right side, bright on dark */}
-                {promoCatImage && (
+                {catImg && (
                   <div className="absolute right-2 top-1/2 -translate-y-1/2 w-24 h-24 promo-float">
-                    <Image src={promoCatImage} alt="" width={96} height={96} className="object-contain w-full h-full brightness-125 drop-shadow-[0_4px_12px_rgba(255,255,255,0.15)]" />
+                    <Image src={catImg} alt="" width={96} height={96} className="object-contain w-full h-full brightness-125 drop-shadow-[0_4px_12px_rgba(255,255,255,0.15)]" />
                   </div>
                 )}
 
-                {/* Content */}
                 <div className="relative flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    {promoDeal.isExpiringSoon && (
-                      <Flame className="w-3 h-3 text-orange-400" />
+                  {/* Smart badge row */}
+                  <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                    {badge && (
+                      <span className={cn('inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border', badge.cls)}>
+                        <badge.icon className="w-2.5 h-2.5" />
+                        {badge.label}
+                      </span>
                     )}
-                    <span className="text-[11px] font-medium text-white/40">
-                      {promoDeal.emirate || promoDeal.location || 'UAE'}
-                    </span>
+                    {daysLeft !== null && daysLeft <= 3 && daysLeft >= 0 && (
+                      <span className="text-[10px] font-medium text-rose-300">
+                        {daysLeft === 0 ? 'Last day!' : `${daysLeft}d left`}
+                      </span>
+                    )}
+                    {taps >= 12 && (
+                      <span className="text-[10px] text-white/30 flex items-center gap-0.5">
+                        <Flame className="w-2.5 h-2.5" />
+                        {taps} views
+                      </span>
+                    )}
+                    {!badge && (
+                      <span className="text-[10px] font-medium text-white/30">
+                        {promoDeal.emirate || promoDeal.location || 'UAE'}
+                      </span>
+                    )}
                   </div>
+
                   <p className="text-[16px] font-bold text-white leading-snug mb-0.5 line-clamp-1 pr-16">{promoDeal.name}</p>
                   <p className="text-[12px] text-white/40 line-clamp-1 pr-16">{promoDeal.offer}</p>
+
                   <div className="mt-2.5 flex items-center gap-3">
                     {promoDeal.price?.toLowerCase().includes('free') ? (
                       <span className="text-[15px] font-black text-emerald-400">FREE</span>
@@ -184,13 +218,16 @@ export function Hero() {
                         {promoDeal.price.replace(/[^0-9,]/g, '').trim()}
                       </span>
                     ) : null}
+
+                    {/* Manual dot nav — no auto-rotate */}
                     {promoDeals.length > 1 && (
-                      <div className="flex gap-1">
+                      <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                         {promoDeals.map((_, i) => (
-                          <div
+                          <button
                             key={i}
+                            onClick={() => setPromoIndex(i)}
                             className={`h-[3px] rounded-full transition-all duration-300 ${
-                              i === promoIndex ? 'w-4 bg-white/50' : 'w-[3px] bg-white/15'
+                              i === promoIndex ? 'w-4 bg-white/60' : 'w-[3px] bg-white/15 active:bg-white/40'
                             }`}
                           />
                         ))}
