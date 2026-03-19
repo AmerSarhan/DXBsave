@@ -9,6 +9,12 @@ import { cn } from '@/lib/utils';
 const TYPES = ['Feedback', 'Submit a Deal', 'Report Issue'] as const;
 type FeedbackType = (typeof TYPES)[number];
 
+const DEAL_CATEGORIES = ['Hotels', 'Dining', 'Attractions', 'Delivery', 'Spa & Wellness', 'Shopping', 'Eid Specials'];
+const DEAL_EMIRATES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'UAE-wide'];
+
+const inputClass = 'w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-[16px] md:text-[14px] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300';
+const selectClass = `${inputClass} appearance-none`;
+
 interface FeedbackModalProps {
   open: boolean;
   onClose: () => void;
@@ -23,15 +29,34 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
   const [sent, setSent] = useState(false);
   const [openedAt] = useState(() => Date.now());
 
+  // Deal submission structured fields
+  const [dealVenue, setDealVenue] = useState('');
+  const [dealCategory, setDealCategory] = useState('');
+  const [dealEmirate, setDealEmirate] = useState('');
+  const [dealOffer, setDealOffer] = useState('');
+  const [dealUrl, setDealUrl] = useState('');
+  const [dealPrice, setDealPrice] = useState('');
+
+  const buildDealMessage = () =>
+    [
+      `Venue: ${dealVenue}`,
+      `Category: ${dealCategory}`,
+      `Emirate: ${dealEmirate}`,
+      `Offer: ${dealOffer}`,
+      dealPrice ? `Price: AED ${dealPrice}` : '',
+      dealUrl ? `Source: ${dealUrl}` : '',
+    ].filter(Boolean).join('\n');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    const finalMessage = type === 'Submit a Deal' ? buildDealMessage() : message;
+    if (!finalMessage.trim()) return;
     setLoading(true);
     try {
       await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, message, email, website, ts: openedAt }),
+        body: JSON.stringify({ type, message: finalMessage, email, website, ts: openedAt }),
       });
     } finally {
       setLoading(false);
@@ -47,13 +72,13 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
       setEmail('');
       setWebsite('');
       setSent(false);
+      setDealVenue(''); setDealCategory(''); setDealEmirate('');
+      setDealOffer(''); setDealUrl(''); setDealPrice('');
     }, 300);
   };
 
-  const placeholder =
-    type === 'Submit a Deal' ? 'Venue, offer, price, link...' :
-    type === 'Report Issue'  ? 'Which deal is wrong or expired?' :
-    'Your message...';
+  const dealFormValid = dealVenue.trim() && dealCategory && dealEmirate && dealOffer.trim();
+  const canSubmit = type === 'Submit a Deal' ? !!dealFormValid : !!message.trim();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -63,7 +88,6 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -73,7 +97,6 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             className="fixed inset-0 z-[70] bg-black/40"
           />
 
-          {/* Sheet — bottom on mobile, centered dialog on desktop */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -81,7 +104,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
             className="fixed z-[70] inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center md:pointer-events-none"
           >
-            <div className="bg-white rounded-t-[20px] md:rounded-2xl shadow-2xl overflow-hidden flex flex-col md:w-[460px] md:pointer-events-auto" style={{ maxHeight: '82vh' }}>
+            <div className="bg-white rounded-t-[20px] md:rounded-2xl shadow-2xl overflow-hidden flex flex-col md:w-[460px] md:pointer-events-auto" style={{ maxHeight: '86vh' }}>
 
               {/* Handle (mobile only) */}
               <div className="md:hidden shrink-0 flex justify-center pt-3 pb-1">
@@ -91,10 +114,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
               {/* Header */}
               <div className="shrink-0 px-5 pt-3 pb-4 flex items-center justify-between border-b border-stone-100">
                 <h2 className="text-[17px] font-bold text-stone-900">Get in touch</h2>
-                <button
-                  onClick={handleClose}
-                  className="p-2 rounded-full bg-stone-100 active:scale-95 transition-transform duration-100"
-                >
+                <button onClick={handleClose} className="p-2 rounded-full bg-stone-100 active:scale-95 transition-transform duration-100">
                   <X className="w-4 h-4 text-stone-600" />
                 </button>
               </div>
@@ -106,7 +126,9 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                     <CheckCircle2 className="w-12 h-12 text-emerald-500" />
                     <p className="text-[16px] font-semibold text-stone-900">Got it, thanks!</p>
                     <p className="text-[13px] text-stone-400 text-center">
-                      We'll look into it and get back to you if needed.
+                      {type === 'Submit a Deal'
+                        ? "We'll review your deal and add it if it checks out."
+                        : "We'll look into it and get back to you if needed."}
                     </p>
                     <button
                       onClick={handleClose}
@@ -126,9 +148,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                           onClick={() => setType(t)}
                           className={cn(
                             'px-3 py-1.5 rounded-xl text-[13px] font-medium transition-colors duration-150',
-                            type === t
-                              ? 'bg-stone-900 text-white'
-                              : 'bg-stone-100 text-stone-500 active:bg-stone-200'
+                            type === t ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500 active:bg-stone-200'
                           )}
                         >
                           {t}
@@ -136,26 +156,69 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                       ))}
                     </div>
 
-                    {/* Message */}
-                    <textarea
-                      value={message}
-                      onChange={e => setMessage(e.target.value)}
-                      placeholder={placeholder}
-                      rows={4}
-                      required
-                      className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-[16px] md:text-[14px] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300 resize-none"
-                    />
+                    {type === 'Submit a Deal' ? (
+                      <>
+                        <p className="text-[12px] text-stone-400 -mt-1">Know a deal we&apos;re missing? Fill in the details and we&apos;ll verify and add it.</p>
+                        <input
+                          value={dealVenue}
+                          onChange={e => setDealVenue(e.target.value)}
+                          placeholder="Venue or brand name *"
+                          required
+                          className={inputClass}
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <select value={dealCategory} onChange={e => setDealCategory(e.target.value)} required className={selectClass}>
+                            <option value="">Category *</option>
+                            {DEAL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                          <select value={dealEmirate} onChange={e => setDealEmirate(e.target.value)} required className={selectClass}>
+                            <option value="">Emirate *</option>
+                            {DEAL_EMIRATES.map(e => <option key={e} value={e}>{e}</option>)}
+                          </select>
+                        </div>
+                        <textarea
+                          value={dealOffer}
+                          onChange={e => setDealOffer(e.target.value)}
+                          placeholder="What's the deal? e.g. Kids eat free, BOGO pool pass... *"
+                          rows={3}
+                          required
+                          className={`${inputClass} resize-none`}
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            value={dealPrice}
+                            onChange={e => setDealPrice(e.target.value)}
+                            placeholder="Price (AED)"
+                            className={inputClass}
+                          />
+                          <input
+                            value={dealUrl}
+                            onChange={e => setDealUrl(e.target.value)}
+                            placeholder="Source URL"
+                            className={inputClass}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <textarea
+                        value={message}
+                        onChange={e => setMessage(e.target.value)}
+                        placeholder={type === 'Report Issue' ? 'Which deal is wrong or expired?' : 'Your message...'}
+                        rows={4}
+                        required
+                        className={`${inputClass} resize-none`}
+                      />
+                    )}
 
-                    {/* Email */}
                     <input
                       type="email"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder="Your email (optional, for reply)"
-                      className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-[16px] md:text-[14px] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                      className={inputClass}
                     />
 
-                    {/* Honeypot — invisible to humans, bots auto-fill it */}
+                    {/* Honeypot */}
                     <input
                       type="text"
                       value={website}
@@ -168,12 +231,12 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
 
                     <button
                       type="submit"
-                      disabled={!message.trim() || loading}
+                      disabled={!canSubmit || loading}
                       className="w-full flex items-center justify-center gap-2 py-3.5 bg-stone-900 text-white rounded-xl text-[14px] font-semibold disabled:opacity-40 active:scale-[0.97] transition-[transform,opacity] duration-150"
                     >
                       {loading
                         ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        : <><Send className="w-4 h-4" /> Send</>
+                        : <><Send className="w-4 h-4" /> {type === 'Submit a Deal' ? 'Submit Deal' : 'Send'}</>
                       }
                     </button>
                   </form>

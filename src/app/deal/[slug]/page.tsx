@@ -1,70 +1,59 @@
-'use client';
+import type { Metadata } from 'next';
+import { fetchDealBySlug } from '@/lib/fetch-deal-server';
+import { DealPageClient } from '@/components/deal-page-client';
 
-import { use, useEffect, useState } from 'react';
-import { useDeals } from '@/contexts/deals-context';
-import { TopBar } from '@/components/top-bar';
-import { DealDetail } from '@/components/deal-detail';
-import { DealCard } from '@/components/deal-card';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const deal = await fetchDealBySlug(slug);
+  if (!deal) return { title: 'Deal Not Found | DXBSave' };
 
-export default function DealPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const { getDealBySlug, loading, allDeals } = useDeals();
-  const [detailOpen, setDetailOpen] = useState(false);
+  const priceText = deal.price && deal.price !== '-' ? ` from AED ${deal.price}` : '';
+  const emirateText = deal.emirate && deal.emirate !== 'UAE' ? ` in ${deal.emirate}` : ' — UAE';
+  const title = `${deal.name} — ${deal.offer} | DXBSave`;
+  const description = `${deal.offer}${priceText}${emirateText}. Verified deal on DXBSave — UAE's best curated offers updated daily.`;
 
-  const deal = getDealBySlug(slug);
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://dxbsave.com/deal/${slug}`,
+    },
+  };
+}
 
-  useEffect(() => {
-    if (deal && !loading) {
-      setDetailOpen(true);
-    }
-  }, [deal, loading]);
+export default async function DealPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const deal = await fetchDealBySlug(slug);
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-white">
-        <TopBar />
-        <div className="pt-24 text-center text-neutral-400">
-          <div className="animate-pulse">Loading deal...</div>
-        </div>
-      </main>
-    );
-  }
-
-  if (!deal) {
-    return (
-      <main className="min-h-screen bg-white">
-        <TopBar />
-        <div className="pt-24 px-4 max-w-lg mx-auto text-center">
-          <h1 className="text-2xl font-bold text-neutral-900 mb-2">Deal not found</h1>
-          <p className="text-neutral-500 mb-6">This deal may have expired or been removed.</p>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-neutral-900 text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Browse all deals
-          </Link>
-        </div>
-      </main>
-    );
-  }
+  const schema = deal ? {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: deal.name,
+    description: deal.offer,
+    brand: { '@type': 'Brand', name: deal.name },
+    offers: {
+      '@type': 'Offer',
+      price: (deal.price || '0').replace(/[^0-9.]/g, '') || '0',
+      priceCurrency: 'AED',
+      availability: 'https://schema.org/InStock',
+      ...(deal.validUntil && deal.validUntil !== 'Ongoing' && deal.validUntil !== ''
+        ? { validThrough: deal.validUntil }
+        : {}),
+      seller: { '@type': 'Organization', name: 'DXBSave', url: 'https://dxbsave.com' },
+    },
+  } : null;
 
   return (
-    <main className="min-h-screen bg-white">
-      <TopBar />
-      <div className="pt-20 px-4 max-w-7xl mx-auto">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to all deals
-        </Link>
-        <DealCard deal={deal} />
-      </div>
-      <DealDetail deal={deal} open={detailOpen} onClose={() => setDetailOpen(false)} />
-    </main>
+    <>
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      )}
+      <DealPageClient slug={slug} serverDeal={deal} />
+    </>
   );
 }

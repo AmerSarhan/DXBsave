@@ -177,9 +177,43 @@ export default async function FilteredDealsPage({ params }: { params: Promise<{ 
     })),
   };
 
+  const eidFaqSchema = slug === 'eid' ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'What are the best Eid deals in Dubai 2026?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'The best Eid deals in Dubai 2026 include free entry to attractions, hotel staycation packages, special Eid brunches, and spa offers. DXBSave tracks verified Eid specials across Dubai, Abu Dhabi, and Sharjah updated daily.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'When is Eid Al Fitr 2026?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Eid Al Fitr 2026 is expected around late March to early April 2026, marking the end of Ramadan. Many UAE venues offer special deals in the days before and after Eid.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Are there free things to do in Dubai during Eid 2026?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes — several Dubai attractions offer free or discounted entry during Eid Al Fitr, including museums, parks, and cultural events. Check DXBSave\'s Eid Specials section for the latest verified free offers.',
+        },
+      },
+    ],
+  } : null;
+
   return (
     <main className="max-w-4xl mx-auto px-5 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      {eidFaqSchema && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eidFaqSchema) }} />
+      )}
 
       <Link href="/deals" className="text-sm text-stone-400 hover:text-stone-600 transition-colors">
         &larr; All Deals
@@ -187,6 +221,28 @@ export default async function FilteredDealsPage({ params }: { params: Promise<{ 
 
       <h1 className="text-3xl font-bold text-stone-900 mt-4 mb-2">{title}</h1>
       <p className="text-stone-500 mb-8">{description} Updated daily.</p>
+
+      {slug === 'eid' && (
+        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 mb-10">
+          <h2 className="text-lg font-bold text-indigo-900 mb-2">🌙 Eid Al Fitr 2026 — Best Deals Across the UAE</h2>
+          <p className="text-indigo-800 text-[14px] leading-relaxed mb-4">
+            Eid Al Fitr is the UAE&apos;s biggest celebration — and the best time to find premium deals across hotels, dining, spa, and attractions. Whether you&apos;re planning a staycation, a family brunch, or a city break within the Emirates, DXBSave curates verified Eid specials across Dubai, Abu Dhabi, Sharjah, and beyond.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[13px]">
+            {[
+              { icon: '🏨', text: 'Eid hotel packages with complimentary breakfast' },
+              { icon: '🍽️', text: 'Special Eid brunches and family set menus' },
+              { icon: '🎡', text: 'Free and discounted entry to top attractions' },
+              { icon: '💆', text: 'Spa BOGO treatments and ladies\' day specials' },
+            ].map(({ icon, text }) => (
+              <div key={text} className="flex items-start gap-2 text-indigo-700">
+                <span>{icon}</span>
+                <span>{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {Object.entries(grouped).map(([cat, deals]) => (
         <section key={cat} className="mb-10">

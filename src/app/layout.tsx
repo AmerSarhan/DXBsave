@@ -30,7 +30,11 @@ export const metadata: Metadata = {
   creator: "DXBSave",
   metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: "/",
+    canonical: "https://dxbsave.com",
+    languages: {
+      'en-AE': 'https://dxbsave.com',
+      'ar-AE': 'https://dxbsave.com/ar',
+    },
   },
   openGraph: {
     title: "DXBSave — UAE's Best Deals & Offers",
@@ -82,7 +86,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en-AE">
       <head>
         <script
           type="application/ld+json"

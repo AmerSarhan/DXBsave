@@ -28,6 +28,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.9,
     },
+    {
+      url: 'https://dxbsave.com/ar',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
     // Category pages
     ...CATEGORIES.map(c => ({
       url: `https://dxbsave.com/deals/${c.key}`,
