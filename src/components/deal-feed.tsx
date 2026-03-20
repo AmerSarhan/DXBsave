@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { SearchX, Sparkles, Flame, Gift, Clock, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { useDeals } from '@/contexts/deals-context';
@@ -41,58 +42,48 @@ const INLINE_TIPS = [
   { icon: Gift,     text: 'Delivery promo codes change weekly — check back often', bg: 'bg-emerald-50', color: 'text-emerald-700' },
 ];
 
-// ── Stories-style "Right Now" bubbles (Instagram pattern) ──────────────────
+// ── Stories-style "Right Now" bubbles ───────────────────────────────────────
 
-const RING_COLOR: Record<string, string> = {
-  expiring: 'ring-rose-500',
-  trending: 'ring-orange-400',
-  free:     'ring-emerald-500',
-  top:      'ring-indigo-400',
-};
-
-const SIGNAL_LABEL: Record<string, string> = {
-  expiring: '⏰',
-  trending: '🔥',
-  free:     '⚡',
-  top:      '✨',
+const RING_STYLE: Record<string, { ring: string; icon: React.FC<{ className?: string }> }> = {
+  expiring: { ring: 'ring-rose-500',    icon: Clock },
+  trending: { ring: 'ring-orange-400',  icon: Flame },
+  free:     { ring: 'ring-emerald-500', icon: Zap },
+  top:      { ring: 'ring-indigo-400',  icon: Sparkles },
 };
 
 function HeroBubble({ deal, onOpen }: { deal: DealWithScore; onOpen: () => void }) {
   const [detailOpen, setDetailOpen] = useState(false);
   const catImg = CATEGORY_IMAGES[deal.category];
   const reason = deal._heroReason || 'top';
-  const ringCls = RING_COLOR[reason] || 'ring-stone-300';
-
-  const handleOpen = () => {
-    onOpen();
-    setDetailOpen(true);
-  };
+  const style = RING_STYLE[reason] || RING_STYLE.top;
 
   return (
     <>
       <button
-        onClick={handleOpen}
+        onClick={() => { onOpen(); setDetailOpen(true); }}
         className="flex flex-col items-center gap-1.5 shrink-0 w-[72px] active:scale-[0.92] transition-transform duration-[120ms] ease-out touch-manipulation"
       >
-        <div className={`relative w-[64px] h-[64px] rounded-full ring-[2.5px] ${ringCls} p-[3px]`}>
+        <div className={`relative w-[64px] h-[64px] rounded-full ring-[2.5px] ${style.ring} p-[3px]`}>
           <div className="w-full h-full rounded-full bg-stone-900 flex items-center justify-center overflow-hidden">
             {catImg ? (
               <Image src={catImg} alt="" width={48} height={48} className="object-contain w-10 h-10" />
             ) : (
-              <span className="text-[20px]">{SIGNAL_LABEL[reason]}</span>
+              <style.icon className="w-5 h-5 text-stone-400" />
             )}
           </div>
-          <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[10px] leading-none">
-            {SIGNAL_LABEL[reason]}
-          </span>
+          {/* Small signal icon badge — bottom right */}
+          <div className={`absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] rounded-full bg-white flex items-center justify-center ring-1 ring-white`}>
+            <style.icon className="w-2.5 h-2.5 text-stone-500" />
+          </div>
         </div>
 
         <span className="text-[11px] font-medium text-stone-700 text-center leading-tight line-clamp-2 w-full">
           {deal.name}
         </span>
       </button>
-      {detailOpen && (
-        <DealDetail deal={deal} open onClose={() => setDetailOpen(false)} />
+      {detailOpen && typeof document !== 'undefined' && createPortal(
+        <DealDetail deal={deal} open onClose={() => setDetailOpen(false)} />,
+        document.body
       )}
     </>
   );
@@ -271,7 +262,7 @@ export function DealFeed() {
         {heroDeals.length >= 2 && (
           <div className="mb-5">
             <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider mb-2.5 px-0.5">Right Now</p>
-            <div className="flex gap-3 overflow-x-auto scrollbar-none -mx-4 px-4 pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="flex gap-3 overflow-x-auto scrollbar-none -mx-4 px-4 pt-1 pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
               {heroDeals.map(deal => (
                 <HeroBubble
                   key={deal.id}
