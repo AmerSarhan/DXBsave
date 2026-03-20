@@ -59,7 +59,7 @@ const SIGNAL_LABEL: Record<string, string> = {
 
 function HeroBubble({ deal, onOpen }: { deal: DealWithScore; onOpen: () => void }) {
   const [detailOpen, setDetailOpen] = useState(false);
-  const [activeDeal, setActiveDeal] = useState<AnyDeal>(deal);
+  const [activeDeal, setActiveDeal] = useState<AnyDeal>(deal as AnyDeal);
   const catImg = CATEGORY_IMAGES[deal.category];
   const reason = deal._heroReason || 'top';
   const ringCls = RING_COLOR[reason] || 'ring-stone-300';
