@@ -360,7 +360,7 @@ export function DealFeed() {
           <DealCard
             key={deal.id}
             deal={deal}
-            onOpen={() => {
+            onDetailOpen={() => {
               recordTap(deal.id);
               recordCategoryTap(deal.category);
             }}
