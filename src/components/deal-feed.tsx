@@ -5,9 +5,10 @@ import { SearchX, Sparkles, Flame, Gift, Clock, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { useDeals } from '@/contexts/deals-context';
 import { DealCard } from './deal-card';
+import { DealDetail } from './deal-detail';
 import { CATEGORIES } from '@/lib/constants';
 import { Shimmer } from '@/components/ai-elements/shimmer';
-import { CategoryKey } from '@/lib/types';
+import { CategoryKey, AnyDeal } from '@/lib/types';
 import {
   scoreDeals,
   rankSections,
@@ -40,12 +41,66 @@ const INLINE_TIPS = [
   { icon: Gift,     text: 'Delivery promo codes change weekly — check back often', bg: 'bg-emerald-50', color: 'text-emerald-700' },
 ];
 
-const HERO_REASON_LABEL: Record<NonNullable<DealWithScore['_heroReason']>, { icon: React.FC<{ className?: string }>, label: string, cls: string }> = {
-  expiring: { icon: Clock,     label: 'Expiring soon',  cls: 'text-rose-600 bg-rose-50 ring-rose-200' },
-  trending: { icon: Flame,     label: 'Trending',       cls: 'text-orange-600 bg-orange-50 ring-orange-200' },
-  free:     { icon: Zap,       label: 'Free',           cls: 'text-emerald-700 bg-emerald-50 ring-emerald-200' },
-  top:      { icon: Sparkles,  label: 'Top pick',       cls: 'text-indigo-600 bg-indigo-50 ring-indigo-200' },
+// ── Stories-style "Right Now" bubbles (Instagram pattern) ──────────────────
+
+const RING_COLOR: Record<string, string> = {
+  expiring: 'ring-rose-500',
+  trending: 'ring-orange-400',
+  free:     'ring-emerald-500',
+  top:      'ring-indigo-400',
 };
+
+const SIGNAL_LABEL: Record<string, string> = {
+  expiring: '⏰',
+  trending: '🔥',
+  free:     '⚡',
+  top:      '✨',
+};
+
+function HeroBubble({ deal, onOpen }: { deal: DealWithScore; onOpen: () => void }) {
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [activeDeal, setActiveDeal] = useState<AnyDeal>(deal);
+  const catImg = CATEGORY_IMAGES[deal.category];
+  const reason = deal._heroReason || 'top';
+  const ringCls = RING_COLOR[reason] || 'ring-stone-300';
+
+  const handleOpen = () => {
+    onOpen();
+    setDetailOpen(true);
+  };
+
+  return (
+    <>
+      <button
+        onClick={handleOpen}
+        className="flex flex-col items-center gap-1.5 shrink-0 w-[72px] active:scale-[0.92] transition-transform duration-[120ms] ease-out touch-manipulation"
+      >
+        {/* Circle with gradient ring — Instagram Stories style */}
+        <div className={`relative w-[64px] h-[64px] rounded-full ring-[2.5px] ${ringCls} p-[3px]`}>
+          <div className="w-full h-full rounded-full bg-stone-900 flex items-center justify-center overflow-hidden">
+            {catImg ? (
+              <Image src={catImg} alt="" width={48} height={48} className="object-contain w-10 h-10" />
+            ) : (
+              <span className="text-[20px]">{SIGNAL_LABEL[reason]}</span>
+            )}
+          </div>
+          {/* Signal dot */}
+          <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[10px] leading-none">
+            {SIGNAL_LABEL[reason]}
+          </span>
+        </div>
+
+        {/* Name — two lines max */}
+        <span className="text-[11px] font-medium text-stone-700 text-center leading-tight line-clamp-2 w-full">
+          {deal.name}
+        </span>
+      </button>
+      <DealDetail deal={activeDeal} open={detailOpen} onClose={() => { setDetailOpen(false); setActiveDeal(deal); }} onChangeDeal={setActiveDeal} />
+    </>
+  );
+}
+
+// ── Main feed component ────────────────────────────────────────────────────
 
 export function DealFeed() {
   const {
@@ -214,38 +269,19 @@ export function DealFeed() {
           </div>
         )}
 
-        {/* ── Right Now hero row ── */}
+        {/* ── Right Now — Stories-style bubbles ── */}
         {heroDeals.length >= 2 && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Flame className="w-4 h-4 text-rose-500" />
-              <h2 className="text-[14px] font-bold text-stone-800 uppercase tracking-wider">Right Now</h2>
-              <span className="text-[11px] text-stone-400">— expiring, trending & free</span>
-            </div>
-
-            {/* Horizontal scroll on mobile, grid on md+ */}
-            <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-none -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:lg:grid-cols-3 md:gap-3 md:overflow-visible">
-              {heroDeals.map(deal => {
-                const reason = deal._heroReason;
-                const badge = reason ? HERO_REASON_LABEL[reason] : null;
-                return (
-                  <div key={deal.id} className="snap-start shrink-0 w-[78vw] sm:w-[60vw] md:w-auto relative">
-                    {badge && (
-                      <div className={`absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full ring-1 text-[10px] font-semibold ${badge.cls}`}>
-                        <badge.icon className="w-2.5 h-2.5" />
-                        {badge.label}
-                      </div>
-                    )}
-                    <DealCard
-                      deal={deal}
-                      onDetailOpen={() => {
-                        recordTap(deal.id);
-                        recordCategoryTap(deal.category);
-                      }}
-                    />
-                  </div>
-                );
-              })}
+          <div className="mb-5">
+            <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider mb-2.5 px-0.5">Right Now</p>
+            <div className="flex gap-3 overflow-x-auto scrollbar-none -mx-4 px-4 pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+              {heroDeals.map(deal => (
+                <HeroBubble
+                  key={deal.id}
+                  deal={deal}
+                  onOpen={() => { recordTap(deal.id); recordCategoryTap(deal.category); }}
+                />
+              ))}
+              <div className="shrink-0 w-4" aria-hidden="true" />
             </div>
           </div>
         )}

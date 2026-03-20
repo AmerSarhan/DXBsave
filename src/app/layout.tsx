@@ -19,12 +19,12 @@ export const metadata: Metadata = {
     template: "%s | DXBSave",
   },
   description:
-    "Discover 286+ verified deals across the UAE — hotels, dining, attractions, delivery codes, spa and Eid specials. Updated daily. 100% free.",
+    "Save on 286+ UAE deals — spa deals Dubai, 2-for-1 offers, hotel staycation deals, dinner buffet deals, free attractions & Eid specials. Updated daily.",
   keywords: [
-    "UAE deals", "Dubai offers", "Abu Dhabi deals", "UAE hotel deals",
-    "Dubai restaurant offers", "happy hour Dubai", "free attractions Dubai",
-    "Eid deals UAE", "staycation deals", "delivery promo codes UAE",
-    "DXBSave", "Dubai savings",
+    "spa deals dubai", "2 for 1 deals dubai", "staycation deals dubai",
+    "dinner buffet deals", "UAE hotel deals", "Dubai offers",
+    "eid staycation dubai", "best deals dubai", "free attractions Dubai",
+    "delivery promo codes UAE", "Abu Dhabi deals", "ras al khaimah hotel deals",
   ],
   authors: [{ name: "DXBSave" }],
   creator: "DXBSave",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DXBSave — UAE's Best Deals & Offers",
     description:
-      "286+ verified deals across the UAE — hotels, dining, attractions, delivery codes and more. Updated daily.",
+      "Save on 286+ UAE deals — spa, hotel staycations, 2-for-1 dining, buffet deals, free attractions & Eid specials. Updated daily.",
     url: SITE_URL,
     siteName: "DXBSave",
     locale: "en_AE",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DXBSave — UAE's Best Deals & Offers",
     description:
-      "286+ verified deals across the UAE. Hotels, dining, attractions, delivery codes. Updated daily.",
+      "Save on 286+ UAE deals — spa, hotel staycations, 2-for-1 dining, buffet deals & Eid specials. Updated daily.",
     images: ["/shared-image.jpg"],
   },
   manifest: "/manifest.json",

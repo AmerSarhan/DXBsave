@@ -21,13 +21,6 @@ const CATEGORY_IMAGES: { key: CategoryKey; label: string; image: string }[] = [
   { key: 'eid', label: 'Eid', image: '/category/Eid.png' },
 ];
 
-const HERO_BADGES = {
-  expiring: { icon: Clock,    label: 'Expiring soon', cls: 'bg-rose-500/20 text-rose-300 border-rose-400/30' },
-  trending: { icon: Flame,    label: 'Trending',      cls: 'bg-orange-500/20 text-orange-300 border-orange-400/30' },
-  free:     { icon: Zap,      label: 'Free',          cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30' },
-  top:      { icon: Sparkles, label: 'Top pick',      cls: 'bg-indigo-500/20 text-indigo-300 border-indigo-400/30' },
-} as const;
-
 const CATEGORY_IMAGES_MAP: Record<string, string> = {
   hotels: '/category/Hotels.png',
   dining: '/category/Dining.png',
@@ -163,9 +156,25 @@ export function Hero() {
         {/* Algorithm-picked featured deal */}
         {promoDeal && (() => {
           const catImg = CATEGORY_IMAGES_MAP[promoDeal.category];
-          const badge = promoDeal._heroReason ? HERO_BADGES[promoDeal._heroReason] : null;
+          const reason = promoDeal._heroReason;
           const daysLeft = promoDeal.expiresAt ? Math.ceil((promoDeal.expiresAt.getTime() - Date.now()) / 864e5) : null;
-          const taps = promoDeal._signals?.trending ?? 0;
+
+          // Single smart label — one reason, not a pile of badges
+          let smartLabel = '';
+          let SmartIcon = Sparkles;
+          if (reason === 'expiring' && daysLeft !== null) {
+            smartLabel = daysLeft === 0 ? 'Last day' : daysLeft === 1 ? 'Ends tomorrow' : `${daysLeft} days left`;
+            SmartIcon = Clock;
+          } else if (reason === 'trending') {
+            smartLabel = 'Trending now';
+            SmartIcon = Flame;
+          } else if (reason === 'free') {
+            smartLabel = 'Free';
+            SmartIcon = Zap;
+          } else if (reason === 'top') {
+            smartLabel = 'Top pick';
+            SmartIcon = Sparkles;
+          }
 
           return (
             <button
@@ -180,27 +189,14 @@ export function Hero() {
                 )}
 
                 <div className="relative flex-1 min-w-0">
-                  {/* Smart badge row */}
-                  <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
-                    {badge && (
-                      <span className={cn('inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border', badge.cls)}>
-                        <badge.icon className="w-2.5 h-2.5" />
-                        {badge.label}
+                  <div className="flex items-center gap-2 mb-1.5">
+                    {smartLabel ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400">
+                        <SmartIcon className="w-3 h-3" />
+                        {smartLabel}
                       </span>
-                    )}
-                    {daysLeft !== null && daysLeft <= 3 && daysLeft >= 0 && (
-                      <span className="text-[10px] font-medium text-rose-300">
-                        {daysLeft === 0 ? 'Last day!' : `${daysLeft}d left`}
-                      </span>
-                    )}
-                    {taps >= 12 && (
-                      <span className="text-[10px] text-white/30 flex items-center gap-0.5">
-                        <Flame className="w-2.5 h-2.5" />
-                        {taps} views
-                      </span>
-                    )}
-                    {!badge && (
-                      <span className="text-[10px] font-medium text-white/30">
+                    ) : (
+                      <span className="text-[11px] font-medium text-white/40">
                         {promoDeal.emirate || promoDeal.location || 'UAE'}
                       </span>
                     )}
