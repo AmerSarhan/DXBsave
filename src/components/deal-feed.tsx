@@ -8,7 +8,7 @@ import { DealCard } from './deal-card';
 import { DealDetail } from './deal-detail';
 import { CATEGORIES } from '@/lib/constants';
 import { Shimmer } from '@/components/ai-elements/shimmer';
-import { CategoryKey, AnyDeal } from '@/lib/types';
+import { CategoryKey } from '@/lib/types';
 import {
   scoreDeals,
   rankSections,
@@ -59,7 +59,6 @@ const SIGNAL_LABEL: Record<string, string> = {
 
 function HeroBubble({ deal, onOpen }: { deal: DealWithScore; onOpen: () => void }) {
   const [detailOpen, setDetailOpen] = useState(false);
-  const [activeDeal, setActiveDeal] = useState<AnyDeal>(deal as AnyDeal);
   const catImg = CATEGORY_IMAGES[deal.category];
   const reason = deal._heroReason || 'top';
   const ringCls = RING_COLOR[reason] || 'ring-stone-300';
@@ -75,7 +74,6 @@ function HeroBubble({ deal, onOpen }: { deal: DealWithScore; onOpen: () => void 
         onClick={handleOpen}
         className="flex flex-col items-center gap-1.5 shrink-0 w-[72px] active:scale-[0.92] transition-transform duration-[120ms] ease-out touch-manipulation"
       >
-        {/* Circle with gradient ring — Instagram Stories style */}
         <div className={`relative w-[64px] h-[64px] rounded-full ring-[2.5px] ${ringCls} p-[3px]`}>
           <div className="w-full h-full rounded-full bg-stone-900 flex items-center justify-center overflow-hidden">
             {catImg ? (
@@ -84,18 +82,18 @@ function HeroBubble({ deal, onOpen }: { deal: DealWithScore; onOpen: () => void 
               <span className="text-[20px]">{SIGNAL_LABEL[reason]}</span>
             )}
           </div>
-          {/* Signal dot */}
           <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[10px] leading-none">
             {SIGNAL_LABEL[reason]}
           </span>
         </div>
 
-        {/* Name — two lines max */}
         <span className="text-[11px] font-medium text-stone-700 text-center leading-tight line-clamp-2 w-full">
           {deal.name}
         </span>
       </button>
-      <DealDetail deal={activeDeal} open={detailOpen} onClose={() => { setDetailOpen(false); setActiveDeal(deal); }} onChangeDeal={setActiveDeal} />
+      {detailOpen && (
+        <DealDetail deal={deal} open onClose={() => setDetailOpen(false)} />
+      )}
     </>
   );
 }

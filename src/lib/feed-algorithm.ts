@@ -17,7 +17,7 @@ export interface TrendingData {
   topDeals: { id: string; taps: number }[];
 }
 
-export interface DealWithScore extends AnyDeal {
+export type DealWithScore = AnyDeal & {
   _score: number;
   _signals: {
     urgency: number;
@@ -29,7 +29,7 @@ export interface DealWithScore extends AnyDeal {
     salt: number;
   };
   _heroReason: 'expiring' | 'trending' | 'free' | 'top' | null;
-}
+};
 
 // ─── Time context ─────────────────────────────────────────────────────────────
 
