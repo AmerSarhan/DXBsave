@@ -84,7 +84,7 @@ async function extractDeals(scrapedText: string): Promise<Array<Record<string, s
       messages: [
         {
           role: 'system',
-          content: `Extract UAE deals from scraped web content. Only include deals with SPECIFIC venue name, price, and offer details. Return JSON: { "deals": [{ "name", "emirate", "location", "category" (hotels/dining/attractions/delivery/spa/shopping), "offer", "price", "validUntil", "source", "sourceUrl" }] }. Skip vague mentions.`,
+          content: `Extract CURRENT UAE deals from scraped web content. Today is ${new Date().toISOString().split('T')[0]}. Only include deals that are clearly active RIGHT NOW — skip anything expired, undated from old articles, or without a specific offer. Each deal must have a SPECIFIC venue name, price or discount, and concrete offer details. For validUntil: use the actual expiry date if mentioned (YYYY-MM-DD), "Ongoing" only if explicitly stated, otherwise leave empty. Return JSON: { "deals": [{ "name", "emirate", "location", "category" (hotels/dining/attractions/delivery/spa/shopping), "offer", "price", "validUntil", "source", "sourceUrl" }] }. Skip vague mentions and anything that looks old or undated.`,
         },
         { role: 'user', content: `Extract deals:\n\n${scrapedText}` },
       ],
@@ -189,6 +189,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: 'No deals extracted', deals: 0 });
   }
 
+  // 2b. Drop deals with expired validUntil dates
+  const now = new Date();
+  const freshDeals = deals.filter(d => {
+    if (!d.validUntil || d.validUntil === 'Ongoing') return true;
+    const expiry = new Date(d.validUntil);
+    return isNaN(expiry.getTime()) || expiry >= now;
+  });
+
   // 3. Load existing names (from ALL tabs including review tab)
   const existing = await loadExistingNames(sheets);
 
@@ -196,7 +204,7 @@ export async function GET(request: NextRequest) {
   let inserted = 0;
   const skipped: string[] = [];
 
-  for (const deal of deals) {
+  for (const deal of freshDeals) {
     if (!deal.name) continue;
 
     if (isDuplicate(deal.name, existing)) {
@@ -240,6 +248,7 @@ export async function GET(request: NextRequest) {
     message: `Scout complete`,
     sourcesScraped: scrapedParts.length,
     dealsFound: deals.length,
+    expired: deals.length - freshDeals.length,
     inserted,
     skipped: skipped.length,
     skippedNames: skipped,
