@@ -1,7 +1,7 @@
 import { SHEET_GIDS } from './constants';
 import {
   parseHotels, parseDining, parseAttractions,
-  parseDelivery, parseSpa, parseShopping, parseEid,
+  parseDelivery, parseSpa, parseShopping,
 } from './sheets';
 import type { AnyDeal } from './types';
 
@@ -14,7 +14,6 @@ const PARSERS: Record<string, { gid: string; parse: (csv: string) => AnyDeal[] }
   delivery:    { gid: SHEET_GIDS.delivery,     parse: parseDelivery as (csv: string) => AnyDeal[] },
   spa:         { gid: SHEET_GIDS.spa,          parse: parseSpa as (csv: string) => AnyDeal[] },
   shopping:    { gid: SHEET_GIDS.shopping,     parse: parseShopping as (csv: string) => AnyDeal[] },
-  eid:         { gid: SHEET_GIDS.eid,          parse: parseEid as (csv: string) => AnyDeal[] },
 };
 
 export async function fetchDealBySlug(slug: string): Promise<AnyDeal | null> {

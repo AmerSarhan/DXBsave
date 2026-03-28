@@ -7,7 +7,7 @@ const month = new Date().toLocaleDateString('en-US', { month: 'long', year: 'num
 
 export const metadata: Metadata = {
   title: `All UAE Deals & Offers ${month} | DXBSave`,
-  description: `330+ verified UAE deals ${month} — hotel day passes from AED 100, happy hours from AED 17, free attractions, spa BOGO, delivery promo codes, and Eid specials. Updated daily.`,
+  description: `330+ verified UAE deals ${month} — hotel day passes from AED 100, happy hours from AED 17, free attractions, spa BOGO, delivery promo codes. Updated daily.`,
 };
 
 const SHEET_BASE_URL = process.env.SHEET_CSV_BASE_URL || '';
@@ -26,7 +26,6 @@ const SHEETS: { key: string; label: string; gid: string; nameCol: number; emirat
   { key: 'attractions', label: 'Attractions & Events', gid: SHEET_GIDS.attractions, nameCol: 0, emirateCol: 1, offerCol: 4, priceCol: 5 },
   { key: 'delivery', label: 'Delivery & App Deals', gid: SHEET_GIDS.delivery, nameCol: 0, emirateCol: -1, offerCol: 3, priceCol: -1 },
   { key: 'spa', label: 'Spa & Wellness', gid: SHEET_GIDS.spa, nameCol: 0, emirateCol: 1, offerCol: 4, priceCol: 5 },
-  { key: 'eid', label: 'Eid Specials', gid: SHEET_GIDS.eid, nameCol: 0, emirateCol: 2, offerCol: 3, priceCol: 4 },
 ];
 
 async function fetchDeals(): Promise<Record<string, Deal[]>> {

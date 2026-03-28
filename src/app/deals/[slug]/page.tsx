@@ -17,7 +17,6 @@ const SHEETS = [
   { key: 'delivery', label: 'Delivery & App Deals', gid: SHEET_GIDS.delivery, nameCol: 0, emirateCol: -1, offerCol: 3, priceCol: -1 },
   { key: 'spa', label: 'Spa & Wellness', gid: SHEET_GIDS.spa, nameCol: 0, emirateCol: 1, offerCol: 4, priceCol: 5 },
   { key: 'shopping', label: 'Shopping & Retail', gid: SHEET_GIDS.shopping, nameCol: 0, emirateCol: 1, offerCol: 4, priceCol: -1 },
-  { key: 'eid', label: 'Eid Specials', gid: SHEET_GIDS.eid, nameCol: 0, emirateCol: 2, offerCol: 3, priceCol: 4 },
 ];
 
 interface Deal {
@@ -84,7 +83,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const emirateDescriptions: Record<string, string> = {
     'Dubai': `Best Dubai deals ${month} — hotel day passes from AED 100, happy hours from AED 17, free attractions, spa BOGO offers, and delivery promo codes.`,
-    'Abu Dhabi': `Abu Dhabi deals ${month} — staycation packages, restaurant discounts, free museum entry, spa treatments, and Eid specials. Updated daily.`,
+    'Abu Dhabi': `Abu Dhabi deals ${month} — staycation packages, restaurant discounts, free museum entry, and spa treatments. Updated daily.`,
     'Sharjah': `Sharjah deals ${month} — affordable hotels, dining discounts, family attractions, and shopping sales. Verified and updated daily.`,
     'Ajman': `Ajman deals ${month} — beach resorts, dining offers, and local attractions at the best prices in the UAE.`,
     'Ras Al Khaimah': `Ras Al Khaimah deals ${month} — adventure activities, mountain resorts, spa getaways, and dining offers. Updated daily.`,
@@ -93,13 +92,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 
   const categoryDescriptions: Record<string, string> = {
-    'hotels': `UAE hotel deals ${month} — day passes from AED 100, staycations with up to 25% off, Eid packages, and resident-only rates across Dubai, Abu Dhabi, and more.`,
-    'dining': `UAE restaurant deals ${month} — happy hours from AED 17, ladies nights, brunches from AED 150, iftars, and Eid dining specials across Dubai and Abu Dhabi.`,
+    'hotels': `UAE hotel deals ${month} — day passes from AED 100, staycations with up to 25% off, seasonal packages, and resident-only rates across Dubai, Abu Dhabi, and more.`,
+    'dining': `UAE restaurant deals ${month} — happy hours from AED 17, ladies nights, brunches from AED 150, and dining specials across Dubai and Abu Dhabi.`,
     'attractions': `UAE attractions deals ${month} — FREE entry offers, theme park discounts, concert tickets, and family activities across Dubai, Abu Dhabi, and Sharjah.`,
     'delivery': `UAE delivery promo codes ${month} — Deliveroo, Talabat, Careem, and Noon Food discounts. Verified and working codes updated daily.`,
     'spa': `UAE spa and wellness deals ${month} — BOGO treatments, hammam packages, fitness memberships, and ladies day specials at top hotel spas.`,
-    'shopping': `UAE shopping sales ${month} — Eid sales up to 80% off, seasonal events, mall promotions, and outlet deals across Dubai and Abu Dhabi.`,
-    'eid': `Eid Al Fitr deals UAE ${month} — free attractions, special brunches, hotel packages, and family offers across Dubai, Abu Dhabi, and Sharjah.`,
+    'shopping': `UAE shopping sales ${month} — seasonal sales up to 80% off, mall promotions, and outlet deals across Dubai and Abu Dhabi.`,
   };
 
   if (emirate) {
@@ -177,72 +175,16 @@ export default async function FilteredDealsPage({ params }: { params: Promise<{ 
     })),
   };
 
-  const eidFaqSchema = slug === 'eid' ? {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: 'What are the best Eid deals in Dubai 2026?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'The best Eid deals in Dubai 2026 include free entry to attractions, hotel staycation packages, special Eid brunches, and spa offers. DXBSave tracks verified Eid specials across Dubai, Abu Dhabi, and Sharjah updated daily.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'When is Eid Al Fitr 2026?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Eid Al Fitr 2026 is expected around late March to early April 2026, marking the end of Ramadan. Many UAE venues offer special deals in the days before and after Eid.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Are there free things to do in Dubai during Eid 2026?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Yes — several Dubai attractions offer free or discounted entry during Eid Al Fitr, including museums, parks, and cultural events. Check DXBSave\'s Eid Specials section for the latest verified free offers.',
-        },
-      },
-    ],
-  } : null;
 
   return (
     <main className="max-w-4xl mx-auto px-5 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-      {eidFaqSchema && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eidFaqSchema) }} />
-      )}
-
       <Link href="/deals" className="text-sm text-stone-400 hover:text-stone-600 transition-colors">
         &larr; All Deals
       </Link>
 
       <h1 className="text-3xl font-bold text-stone-900 mt-4 mb-2">{title}</h1>
       <p className="text-stone-500 mb-8">{description} Updated daily.</p>
-
-      {slug === 'eid' && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 mb-10">
-          <h2 className="text-lg font-bold text-indigo-900 mb-2">🌙 Eid Al Fitr 2026 — Best Deals Across the UAE</h2>
-          <p className="text-indigo-800 text-[14px] leading-relaxed mb-4">
-            Eid Al Fitr is the UAE&apos;s biggest celebration — and the best time to find premium deals across hotels, dining, spa, and attractions. Whether you&apos;re planning a staycation, a family brunch, or a city break within the Emirates, DXBSave curates verified Eid specials across Dubai, Abu Dhabi, Sharjah, and beyond.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[13px]">
-            {[
-              { icon: '🏨', text: 'Eid hotel packages with complimentary breakfast' },
-              { icon: '🍽️', text: 'Special Eid brunches and family set menus' },
-              { icon: '🎡', text: 'Free and discounted entry to top attractions' },
-              { icon: '💆', text: 'Spa BOGO treatments and ladies\' day specials' },
-            ].map(({ icon, text }) => (
-              <div key={text} className="flex items-start gap-2 text-indigo-700">
-                <span>{icon}</span>
-                <span>{text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {Object.entries(grouped).map(([cat, deals]) => (
         <section key={cat} className="mb-10">

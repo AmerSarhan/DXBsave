@@ -8,7 +8,6 @@ import {
   DeliveryDeal,
   SpaDeal,
   ShoppingDeal,
-  EidDeal,
   MarketTip,
   AnyDeal,
 } from './types';
@@ -223,39 +222,6 @@ export function parseShopping(csv: string): ShoppingDeal[] {
     });
 }
 
-export function parseEid(csv: string): EidDeal[] {
-  const parsed = Papa.parse<string[]>(csv, { skipEmptyLines: true });
-  const rows = getDataRows(parsed.data);
-  return rows
-    .filter(row => row[0] && row[0].trim().length > 0)
-    .map((row, idx) => {
-      const name = safeGet(row, 0);      // Venue / Hotel / Attraction
-      const offerCat = safeGet(row, 1);   // Category
-      const emirate = safeGet(row, 2);    // Emirate
-      const offer = safeGet(row, 3);      // Eid Offer Summary
-      const validUntil = safeGet(row, 5); // When
-      const expiresAt = parseDate(validUntil);
-      return {
-        id: generateId('eid', name, emirate, offer + idx),
-        category: 'eid' as const,
-        name,
-        emirate,
-        location: '',
-        offerCategory: offerCat,
-        offer,
-        offerSummary: offer,
-        price: safeGet(row, 4),
-        validUntil,
-        expiresAt,
-        isExpiringSoon: isExpiringSoon(expiresAt),
-        booking: safeGet(row, 6),
-        status: safeGet(row, 7),
-        notes: safeGet(row, 7),
-        slug: `eid-${slugify(name)}`,
-      };
-    });
-}
-
 export function parseTips(csv: string): MarketTip[] {
   const parsed = Papa.parse<string[]>(csv, { skipEmptyLines: true });
   const rows = getDataRows(parsed.data);
@@ -276,7 +242,6 @@ type ParserMap = {
   delivery: typeof parseDelivery;
   spa: typeof parseSpa;
   shopping: typeof parseShopping;
-  eid: typeof parseEid;
   tips: typeof parseTips;
 };
 
@@ -287,11 +252,10 @@ export const PARSERS: ParserMap = {
   delivery: parseDelivery,
   spa: parseSpa,
   shopping: parseShopping,
-  eid: parseEid,
   tips: parseTips,
 };
 
-export function getAllDeals(data: { hotels: HotelDeal[]; dining: DiningDeal[]; attractions: AttractionDeal[]; delivery: DeliveryDeal[]; spa: SpaDeal[]; shopping: ShoppingDeal[]; eid: EidDeal[] }): AnyDeal[] {
+export function getAllDeals(data: { hotels: HotelDeal[]; dining: DiningDeal[]; attractions: AttractionDeal[]; delivery: DeliveryDeal[]; spa: SpaDeal[]; shopping: ShoppingDeal[] }): AnyDeal[] {
   return [
     ...data.hotels,
     ...data.dining,
@@ -299,6 +263,5 @@ export function getAllDeals(data: { hotels: HotelDeal[]; dining: DiningDeal[]; a
     ...data.delivery,
     ...data.spa,
     ...data.shopping,
-    ...data.eid,
   ];
 }

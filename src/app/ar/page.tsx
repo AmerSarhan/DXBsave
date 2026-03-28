@@ -17,7 +17,6 @@ const CATEGORIES_AR = [
   { href: '/deals/spa',         ar: 'عروض السبا والعناية',          en: 'Spa & Wellness',       icon: '💆', desc: 'جلسات سبا، حمام مغربي، عروض يوم المرأة وباقات الاسترخاء في أفخر المنتجعات' },
   { href: '/deals/delivery',    ar: 'أكواد خصم التوصيل',            en: 'Delivery Codes',       icon: '🛵', desc: 'أكواد خصم ديليفرو وطلبات وكريم فود وأبرز تطبيقات التوصيل في الإمارات' },
   { href: '/deals/shopping',    ar: 'عروض التسوق',                  en: 'Shopping',             icon: '🛍️', desc: 'تخفيضات الموسم وعروض المولات والمتاجر الكبرى في دبي والشارقة' },
-  { href: '/deals/eid',         ar: 'عروض عيد الفطر ٢٠٢٦',         en: 'Eid Specials',         icon: '🌙', desc: 'أفضل عروض العيد في الإمارات — فنادق، مطاعم، أنشطة مجانية وعروض حصرية' },
 ];
 
 const EMIRATES_AR = [

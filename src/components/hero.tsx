@@ -18,7 +18,6 @@ const CATEGORY_IMAGES: { key: CategoryKey; label: string; image: string }[] = [
   { key: 'delivery', label: 'Delivery', image: '/category/Delivery.png' },
   { key: 'spa', label: 'Spa', image: '/category/Spa.png' },
   { key: 'shopping', label: 'Shopping', image: '/category/shopping.png' },
-  { key: 'eid', label: 'Eid', image: '/category/Eid.png' },
 ];
 
 const CATEGORY_IMAGES_MAP: Record<string, string> = {
@@ -28,7 +27,6 @@ const CATEGORY_IMAGES_MAP: Record<string, string> = {
   delivery: '/category/Delivery.png',
   spa: '/category/Spa.png',
   shopping: '/category/shopping.png',
-  eid: '/category/Eid.png',
 };
 
 export function Hero() {
@@ -184,7 +182,7 @@ export function Hero() {
               <div key={promoDeal.id} className="animate-fade-in relative p-4 flex items-center gap-4 min-h-[110px]">
                 {catImg && (
                   <div className="absolute right-2 top-1/2 -translate-y-1/2 w-24 h-24 promo-float">
-                    <Image src={catImg} alt="" width={96} height={96} className="object-contain w-full h-full brightness-125 drop-shadow-[0_4px_12px_rgba(255,255,255,0.15)]" />
+                    <Image src={catImg} alt="" width={96} height={96} priority className="object-contain w-full h-full brightness-125 drop-shadow-[0_4px_12px_rgba(255,255,255,0.15)]" />
                   </div>
                 )}
 
@@ -219,10 +217,12 @@ export function Hero() {
                     {promoDeals.length > 1 && (
                       <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                         {promoDeals.map((_, i) => (
-                          <button
+                          <div
                             key={i}
+                            role="tab"
+                            aria-selected={i === promoIndex}
                             onClick={() => setPromoIndex(i)}
-                            className={`h-[3px] rounded-full transition-all duration-300 ${
+                            className={`h-[3px] rounded-full transition-all duration-300 cursor-pointer ${
                               i === promoIndex ? 'w-4 bg-white/60' : 'w-[3px] bg-white/15 active:bg-white/40'
                             }`}
                           />

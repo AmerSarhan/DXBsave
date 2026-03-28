@@ -1,4 +1,4 @@
-export type CategoryKey = 'hotels' | 'dining' | 'attractions' | 'delivery' | 'spa' | 'shopping' | 'eid';
+export type CategoryKey = 'hotels' | 'dining' | 'attractions' | 'delivery' | 'spa' | 'shopping';
 
 export interface BaseDeal {
   id: string;
@@ -66,14 +66,7 @@ export interface ShoppingDeal extends BaseDeal {
   dates: string;
 }
 
-export interface EidDeal extends BaseDeal {
-  category: 'eid';
-  offerSummary: string;
-  booking: string;
-  status: string;
-}
-
-export type AnyDeal = HotelDeal | DiningDeal | AttractionDeal | DeliveryDeal | SpaDeal | ShoppingDeal | EidDeal;
+export type AnyDeal = HotelDeal | DiningDeal | AttractionDeal | DeliveryDeal | SpaDeal | ShoppingDeal;
 
 export interface MarketTip {
   tipNumber: string;
@@ -89,7 +82,6 @@ export interface SheetData {
   delivery: DeliveryDeal[];
   spa: SpaDeal[];
   shopping: ShoppingDeal[];
-  eid: EidDeal[];
   tips: MarketTip[];
 }
 

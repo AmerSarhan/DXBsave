@@ -20,7 +20,7 @@ function loadCache(): CachedData | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     // Rehydrate dates
-    const categories: (keyof SheetData)[] = ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping', 'eid'];
+    const categories: (keyof SheetData)[] = ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping'];
     for (const cat of categories) {
       const items = parsed.data[cat];
       if (Array.isArray(items)) {
@@ -51,7 +51,6 @@ const emptyData: SheetData = {
   delivery: [],
   spa: [],
   shopping: [],
-  eid: [],
   tips: [],
 };
 

@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 const TYPES = ['Feedback', 'Submit a Deal', 'Report Issue'] as const;
 type FeedbackType = (typeof TYPES)[number];
 
-const DEAL_CATEGORIES = ['Hotels', 'Dining', 'Attractions', 'Delivery', 'Spa & Wellness', 'Shopping', 'Eid Specials'];
+const DEAL_CATEGORIES = ['Hotels', 'Dining', 'Attractions', 'Delivery', 'Spa & Wellness', 'Shopping'];
 const DEAL_EMIRATES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'UAE-wide'];
 
 const inputClass = 'w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-[16px] md:text-[14px] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300';

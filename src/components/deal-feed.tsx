@@ -33,7 +33,6 @@ const CATEGORY_IMAGES: Partial<Record<CategoryKey, string>> = {
   delivery: '/category/Delivery.png',
   spa: '/category/Spa.png',
   shopping: '/category/shopping.png',
-  eid: '/category/Eid.png',
 };
 
 const INLINE_TIPS = [
@@ -383,7 +382,6 @@ function Footer() {
     { key: 'delivery', label: 'Delivery' },
     { key: 'spa', label: 'Spa & Wellness' },
     { key: 'shopping', label: 'Shopping' },
-    { key: 'eid', label: 'Eid Specials' },
   ];
   const emirates = [
     { slug: 'dubai', label: 'Dubai' },

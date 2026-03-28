@@ -5,7 +5,6 @@ import {
   Package,
   Sparkles,
   ShoppingBag,
-  Moon,
   type LucideIcon,
 } from 'lucide-react';
 import { CategoryKey } from './types';
@@ -17,7 +16,6 @@ export const SHEET_GIDS: Record<CategoryKey | 'tips', string> = {
   delivery: '1498335291',
   spa: '1830962395',
   shopping: '1261015132',
-  eid: '1434967925',
   tips: '989420297',
 };
 
@@ -36,7 +34,6 @@ export const CATEGORIES: CategoryConfig[] = [
   { key: 'delivery', label: 'Delivery', icon: Package, color: 'text-zinc-600', bgColor: 'bg-zinc-100' },
   { key: 'spa', label: 'Spa & Wellness', icon: Sparkles, color: 'text-rose-700', bgColor: 'bg-rose-50' },
   { key: 'shopping', label: 'Shopping', icon: ShoppingBag, color: 'text-stone-600', bgColor: 'bg-stone-100' },
-  { key: 'eid', label: 'Eid Specials', icon: Moon, color: 'text-indigo-700', bgColor: 'bg-indigo-50' },
 ];
 
 export const EMIRATES = ['All', 'Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'];

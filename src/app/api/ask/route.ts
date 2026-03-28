@@ -30,7 +30,6 @@ const SHEET_CONFIGS: { key: string; gid: string; nameCol: number; offerCol: numb
   { key: 'delivery', gid: SHEET_GIDS.delivery, nameCol: 0, offerCol: 3, priceCol: -1, locationCol: -1, emirateCol: -1 },
   { key: 'spa', gid: SHEET_GIDS.spa, nameCol: 0, offerCol: 4, priceCol: 5, locationCol: 2, emirateCol: 1 },
   { key: 'shopping', gid: SHEET_GIDS.shopping, nameCol: 0, offerCol: 4, priceCol: -1, locationCol: 2, emirateCol: 1 },
-  { key: 'eid', gid: SHEET_GIDS.eid, nameCol: 0, offerCol: 3, priceCol: 4, locationCol: -1, emirateCol: 2 },
 ];
 
 async function getAllDeals(): Promise<DealRow[]> {
@@ -88,7 +87,7 @@ const tools = [
       parameters: {
         type: 'object',
         properties: {
-          category: { type: 'string', enum: ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping', 'eid'], description: 'Deal category' },
+          category: { type: 'string', enum: ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping'], description: 'Deal category' },
           max_results: { type: 'number', description: 'Max deals to return (default 10)' },
         },
         required: ['category'],
@@ -104,7 +103,7 @@ const tools = [
         type: 'object',
         properties: {
           emirate: { type: 'string', description: 'Emirate name (Dubai, Abu Dhabi, Sharjah, Ajman, Ras Al Khaimah, Fujairah)' },
-          category: { type: 'string', enum: ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping', 'eid'], description: 'Optional category filter' },
+          category: { type: 'string', enum: ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping'], description: 'Optional category filter' },
           max_results: { type: 'number', description: 'Max deals to return (default 10)' },
         },
         required: ['emirate'],

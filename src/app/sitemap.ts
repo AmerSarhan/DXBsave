@@ -11,7 +11,6 @@ const CATEGORY_SHEETS: { prefix: string; gid: string; nameCol: number }[] = [
   { prefix: 'attractions', gid: SHEET_GIDS.attractions, nameCol: 0 },
   { prefix: 'delivery', gid: SHEET_GIDS.delivery, nameCol: 0 },
   { prefix: 'spa', gid: SHEET_GIDS.spa, nameCol: 0 },
-  { prefix: 'eid', gid: SHEET_GIDS.eid, nameCol: 0 },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

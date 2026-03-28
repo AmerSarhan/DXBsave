@@ -19,11 +19,11 @@ export const metadata: Metadata = {
     template: "%s | DXBSave",
   },
   description:
-    "Save on 286+ UAE deals — spa deals Dubai, 2-for-1 offers, hotel staycation deals, dinner buffet deals, free attractions & Eid specials. Updated daily.",
+    "Save on 286+ UAE deals — spa deals Dubai, 2-for-1 offers, hotel staycation deals, dinner buffet deals, free attractions & seasonal specials. Updated daily.",
   keywords: [
     "spa deals dubai", "2 for 1 deals dubai", "staycation deals dubai",
     "dinner buffet deals", "UAE hotel deals", "Dubai offers",
-    "eid staycation dubai", "best deals dubai", "free attractions Dubai",
+    "best deals dubai", "free attractions Dubai",
     "delivery promo codes UAE", "Abu Dhabi deals", "ras al khaimah hotel deals",
   ],
   authors: [{ name: "DXBSave" }],
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DXBSave — UAE's Best Deals & Offers",
     description:
-      "Save on 286+ UAE deals — spa, hotel staycations, 2-for-1 dining, buffet deals, free attractions & Eid specials. Updated daily.",
+      "Save on 286+ UAE deals — spa, hotel staycations, 2-for-1 dining, buffet deals, free attractions & seasonal specials. Updated daily.",
     url: SITE_URL,
     siteName: "DXBSave",
     locale: "en_AE",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DXBSave — UAE's Best Deals & Offers",
     description:
-      "Save on 286+ UAE deals — spa, hotel staycations, 2-for-1 dining, buffet deals & Eid specials. Updated daily.",
+      "Save on 286+ UAE deals — spa, hotel staycations, 2-for-1 dining, buffet deals & seasonal specials. Updated daily.",
     images: ["/shared-image.jpg"],
   },
   manifest: "/manifest.json",
@@ -96,7 +96,7 @@ export default function RootLayout({
               "@type": "WebSite",
               "name": "DXBSave",
               "url": "https://dxbsave.com",
-              "description": "Discover 286+ verified deals across the UAE. Hotels, dining, attractions, delivery codes, spa and Eid specials.",
+              "description": "Discover 286+ verified deals across the UAE. Hotels, dining, attractions, delivery codes, spa and seasonal specials.",
               "potentialAction": {
                 "@type": "SearchAction",
                 "target": "https://dxbsave.com/?q={search_term_string}",

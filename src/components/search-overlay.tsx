@@ -15,7 +15,6 @@ const QUICK_SEARCHES = [
   'Brunch',
   'Pool day pass',
   'Happy hour',
-  'Eid',
   'Staycation',
   'Ladies night',
   'Deliveroo',

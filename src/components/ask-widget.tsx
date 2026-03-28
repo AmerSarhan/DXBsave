@@ -31,7 +31,6 @@ const QUICK_ACTIONS = [
   { label: 'Free stuff', query: 'Show me everything that is free', icon: Gift },
   { label: 'Hotels', query: 'Best hotel deals right now', icon: Building2 },
   { label: 'Dining', query: 'Best dining and happy hour deals', icon: UtensilsCrossed },
-  { label: 'Eid deals', query: 'All Eid specials happening now', icon: Tag },
   { label: 'Attractions', query: 'Fun things to do and attractions', icon: Ticket },
 ];
 
@@ -66,11 +65,6 @@ const LOADING_MAP: Record<string, string[]> = {
     'Checking if Aquaventure is still free...',
     'Hunting for zero-dirham deals...',
     'Making sure it is actually free...',
-  ],
-  eid: [
-    'Checking every Eid special across the UAE...',
-    'Scanning Eid brunches, staycations, events...',
-    'Making sure the Eid fireworks are still on...',
   ],
   spa: [
     'Booking you a massage... just kidding...',

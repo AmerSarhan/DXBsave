@@ -39,7 +39,6 @@ export interface TimeContext {
   isAfternoon: boolean;  // 12-18
   isEvening: boolean;    // 18-02
   isWeekend: boolean;    // Fri-Sat (UAE weekend)
-  isRamadanEidSeason: boolean; // March-April
 }
 
 export function getTimeContext(): TimeContext {
@@ -53,7 +52,6 @@ export function getTimeContext(): TimeContext {
     isAfternoon: hour >= 12 && hour < 18,
     isEvening: hour >= 18 || hour < 2,
     isWeekend: day === 5 || day === 6,
-    isRamadanEidSeason: month === 3 || month === 4,
   };
 }
 
@@ -134,7 +132,6 @@ function timeRelevanceScore(deal: AnyDeal, ctx: TimeContext): number {
   if (ctx.isWeekend) {
     if (cat === 'hotels')   score += 14;
     if (cat === 'spa')      score += 10;
-    if (cat === 'eid')      score += 12;
     if (cat === 'dining' && (text.includes('brunch') || text.includes('friday') || text.includes('saturday')))
       score += 14;
     if (cat === 'attractions') score += 7;
@@ -163,13 +160,6 @@ function timeRelevanceScore(deal: AnyDeal, ctx: TimeContext): number {
     if (cat === 'delivery') score += 10;
     if (cat === 'hotels' && !text.includes('day pass')) score += 6;
     if (cat === 'attractions' && (text.includes('night') || text.includes('fountain'))) score += 9;
-  }
-
-  // Ramadan/Eid season bonus
-  if (ctx.isRamadanEidSeason) {
-    if (cat === 'eid')    score += 20;
-    if (cat === 'dining' && (text.includes('iftar') || text.includes('ramadan') || text.includes('eid')))
-      score += 15;
   }
 
   return Math.min(score, 22);
@@ -240,7 +230,7 @@ export function rankSections(
   trendingData: TrendingData,
   favoriteIds: Set<string>,
 ): CategoryKey[] {
-  const all: CategoryKey[] = ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping', 'eid'];
+  const all: CategoryKey[] = ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping'];
   const ctx = getTimeContext();
 
   // Count trending taps per category
@@ -264,14 +254,10 @@ export function rankSections(
       if (cat === 'hotels')   s += 16;
       if (cat === 'spa')      s += 12;
       if (cat === 'dining')   s += 10;
-      if (cat === 'eid')      s += 14;
     }
     if (ctx.isMorning)   { if (cat === 'dining') s += 10; if (cat === 'delivery') s += 6; }
     if (ctx.isAfternoon) { if (cat === 'attractions') s += 12; if (cat === 'spa') s += 10; }
     if (ctx.isEvening)   { if (cat === 'dining') s += 14; if (cat === 'delivery') s += 12; }
-
-    // Ramadan/Eid season
-    if (ctx.isRamadanEidSeason && cat === 'eid') s += 22;
 
     // Rotation penalty — category that led last session gets pushed back
     const lastPos = memory.sectionOrder.indexOf(cat);
@@ -320,7 +306,7 @@ export function getDefaultMemory(): FeedMemory {
   return {
     seenDeals: {},
     categoryTaps: {},
-    sectionOrder: ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping', 'eid'],
+    sectionOrder: ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping'],
     sessionSeed: Math.floor(Math.random() * 0xffffffff),
     visitCount: 0,
     lastVisit: Date.now(),

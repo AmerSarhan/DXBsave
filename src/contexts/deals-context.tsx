@@ -108,7 +108,7 @@ export function DealsProvider({ children }: { children: React.ReactNode }) {
 
   const dealsByCategory = useMemo(() => {
     const map = {} as Record<CategoryKey, AnyDeal[]>;
-    const categories: CategoryKey[] = ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping', 'eid'];
+    const categories: CategoryKey[] = ['hotels', 'dining', 'attractions', 'delivery', 'spa', 'shopping'];
     for (const cat of categories) {
       map[cat] = allDeals.filter(d => d.category === cat);
     }
